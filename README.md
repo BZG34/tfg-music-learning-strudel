@@ -54,3 +54,10 @@ Para levantar el entorno de desarrollo en la Raspberry Pi:
    ```bash
    git clone git@github.com:tu-usuario/tfg-music-learning-strudel.git
    cd tfg-music-learning-strudel
+2. Configura las variables de entorno:
+   ```bash
+   cp .env.example .env
+3. Levanta los servicios con Docker:
+   ```bash
+   docker compose up -d 
+   
