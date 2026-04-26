@@ -1,0 +1,56 @@
+services:
+  db:
+    # Base de datos PostgreSQL para almacenar la información persistente de la aplicación.
+    image: postgres:17-alpine
+    container_name: music_db
+    restart: always
+    environment:
+      # Valores configurables desde variables de entorno, con valores por defecto para desarrollo.
+      POSTGRES_USER: ${DB_USER:-admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+      POSTGRES_DB: ${DB_NAME:-musica_db}
+    volumes:
+      # Persistencia en el SSD mapea los datos a una carpeta local
+      - ./database_data:/var/lib/postgresql/data
+    # Red compartida para que backend y frontend puedan resolver el servicio por nombre.
+    networks:
+      - tfg_network
+
+  backend:
+    # API de la aplicación, construida desde el directorio backend.
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: music_api
+    restart: always
+    environment:
+      # URL interna de conexión a PostgreSQL dentro de la red de Docker.
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+    # El backend depende de la base de datos para poder iniciar correctamente.
+    depends_on:
+      - db
+    # Misma red interna para comunicación con la base de datos y el frontend.
+    networks:
+      - tfg_network
+
+  frontend:
+    # Interfaz web servida desde su propia imagen Docker.
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: music_web
+    restart: always
+    # Expone el puerto HTTP estándar del contenedor hacia el host.
+    ports:
+      - "80:80"
+    # Espera a que la API esté disponible antes de arrancar.
+    depends_on:
+      - backend
+    # Comparte la red privada de la aplicación.
+    networks:
+      - tfg_network
+
+networks:
+  # Red puente aislada para conectar los servicios del proyecto.
+  tfg_network:
+    driver: bridge
