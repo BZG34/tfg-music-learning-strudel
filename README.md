@@ -57,6 +57,8 @@ Para levantar el entorno de desarrollo en la Raspberry Pi:
 2. Configura las variables de entorno:
    ```bash
    cp .env.example .env
+Nota: Edita el archivo .env recién creado y define tus credenciales antes de levantar los contenedores.
+
 3. Levanta los servicios con Docker:
    ```bash
    docker compose up -d 
