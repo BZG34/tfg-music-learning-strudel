@@ -62,4 +62,4 @@ Nota: Edita el archivo .env recién creado y define tus credenciales antes de le
 3. Levanta los servicios con Docker:
    ```bash
    docker compose up -d 
-   
+   ```
