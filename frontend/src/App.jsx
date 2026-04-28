@@ -1,7 +1,7 @@
 import { useState } from 'react';
 // Importamos las funciones directamente de @strudel/core
 import { note, s } from '@strudel/core';
-import { getContext } from '@strudel/web';
+import { webaudio } from '@strudel/web';
 
 function App() {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -45,7 +45,7 @@ function App() {
       </button>
 
       <div style={{ marginTop: '30px' }}>
-        <small>Arquitectura: React -> Strudel Core -> Web Audio API</small>
+        <small>Arquitectura: React - Strudel Core - Web Audio API</small>
       </div>
     </div>
   );
