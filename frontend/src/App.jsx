@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { evaluate } from '@strudel.js/core';
-import '@strudel.js/web'; // Inicializamos el motor de audio en el navegador
+import { evaluate } from '@strudel/core';
+import '@strudel/web'; // Inicializamos el motor de audio en el navegador
 
 function App() {
   const [isPlaying, setIsPlaying] = useState(false);
