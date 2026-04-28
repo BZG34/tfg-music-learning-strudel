@@ -1,32 +1,30 @@
 import { useState } from 'react';
-// Importamos las funciones directamente de @strudel/core
-import { note, s } from '@strudel/core';
-import { webaudio } from '@strudel/web';
+// Importamos las funciones directamente desde @strudel/web para evitar duplicados
+import { note, webaudio } from '@strudel/web';
 
 function App() {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const handlePlay = async () => {
-    // 1. Despertar el audio
-    const ctx = getContext();
-    if (ctx.state === 'suspended') {
-      await ctx.resume();
+    try {
+      // 1. Inicializamos el audio lo que despierta el AudioContext internamente)
+      await webaudio.init();
+
+      // 2. Ejecutamos la escala
+      // Usamos .s("triangle") porque no requiere descargar archivos de internet
+      note("C3 E3 G3 B3 C4").s("triangle").play();
+
+      setIsPlaying(true);
+      console.log("🚀 Motor de audio Strudel iniciado con éxito");
+    } catch (error) {
+      console.error("❌ Error al iniciar el audio:", error);
     }
-
-    // 2. Usar la API funcional en lugar de strings
-    note("C3 E3 G3 B3 C4")
-      .s("triangle")
-      .decay(0.2)
-      .play(); // .play() inicia la secuencia inmediatamente
-
-    setIsPlaying(true);
-    console.log("Reproduciendo escala funcional...");
   };
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px', fontFamily: 'sans-serif', color: '#333' }}>
-      <h1>🎹 Strudel + Raspberry Pi 5</h1>
-      <p>Estado del audio: <strong>{isPlaying ? '✅ Sonando' : '🤫 Silencio'}</strong></p>
+      <h1>🎹 TFG: Strudel en Raspberry Pi 5</h1>
+      <p>Estado: <strong>{isPlaying ? '✅ Sonando' : '🤫 Silencio'}</strong></p>
       
       <button 
         onClick={handlePlay}
@@ -41,11 +39,11 @@ function App() {
           boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
         }}
       >
-        {isPlaying ? '🎶 Reproduciendo...' : 'Lanzar Escala'}
+        {isPlaying ? '🎶 ¡A tope!' : 'Lanzar Música'}
       </button>
 
       <div style={{ marginTop: '30px' }}>
-        <small>Arquitectura: React - Strudel Core - Web Audio API</small>
+        <small>Arquitectura: React - Strudel Web - Nginx</small>
       </div>
     </div>
   );
