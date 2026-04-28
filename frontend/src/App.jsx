@@ -1,40 +1,51 @@
 import { useState } from 'react';
-import { evaluate } from '@strudel/core';
-import '@strudel/web'; // Inicializamos el motor de audio en el navegador
+// Importamos las funciones directamente de @strudel/core
+import { note, s } from '@strudel/core';
+import { getContext } from '@strudel/web';
 
 function App() {
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const handlePlay = () => {
-    // En el patrón de Strudel: Una escala simple con un sintetizador tipo piano
-    const code = 'note("C3 E3 G3 B3 C4").s("triangle").decay(0.2).jux(rev)';
-    
-    evaluate(code);
+  const handlePlay = async () => {
+    // 1. Despertar el audio
+    const ctx = getContext();
+    if (ctx.state === 'suspended') {
+      await ctx.resume();
+    }
+
+    // 2. Usar la API funcional en lugar de strings
+    note("C3 E3 G3 B3 C4")
+      .s("triangle")
+      .decay(0.2)
+      .play(); // .play() inicia la secuencia inmediatamente
+
     setIsPlaying(true);
+    console.log("Reproduciendo escala funcional...");
   };
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px', fontFamily: 'sans-serif' }}>
-      <h1>🎓 TFG: Aprendizaje Musical</h1>
-      <p>Pulsa el botón para probar el motor de <strong>Strudel.js</strong></p>
+    <div style={{ textAlign: 'center', marginTop: '50px', fontFamily: 'sans-serif', color: '#333' }}>
+      <h1>🎹 Strudel + Raspberry Pi 5</h1>
+      <p>Estado del audio: <strong>{isPlaying ? '✅ Sonando' : '🤫 Silencio'}</strong></p>
       
       <button 
         onClick={handlePlay}
         style={{
-          padding: '15px 30px',
-          fontSize: '1.2rem',
-          backgroundColor: isPlaying ? '#4CAF50' : '#008CBA',
+          padding: '20px 40px',
+          fontSize: '1.5rem',
+          backgroundColor: '#6200ee',
           color: 'white',
           border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer'
+          borderRadius: '12px',
+          cursor: 'pointer',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
         }}
       >
-        {isPlaying ? '¡Sonando! 🎵' : 'Reproducir Escala'}
+        {isPlaying ? '🎶 Reproduciendo...' : 'Lanzar Escala'}
       </button>
 
-      <div style={{ marginTop: '20px', color: '#666' }}>
-        <small>Código ejecutado: <code>note("C3 E3 G3 B3 C4").s("triangle")</code></small>
+      <div style={{ marginTop: '30px' }}>
+        <small>Arquitectura: React -> Strudel Core -> Web Audio API</small>
       </div>
     </div>
   );
