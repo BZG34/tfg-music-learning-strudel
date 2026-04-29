@@ -1,37 +1,56 @@
-import { useState } from 'react';
-// Importamos las funciones directamente desde @strudel/web para evitar duplicados
-import { note, webaudio } from '@strudel/web';
+import { useState, useEffect } from 'react';
+import { note, initStrudel, stopAll } from '@strudel/web';
 
 function App() {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Inicializar Strudel al montar el componente
+  useEffect(() => {
+    initStrudel().then(() => {
+      setIsInitialized(true);
+      console.log("🎵 Strudel inicializado correctamente");
+    });
+  }, []);
 
   const handlePlay = async () => {
-    try {
-      // 1. Inicializamos el audio lo que despierta el AudioContext internamente)
-      await webaudio.init();
+    if (!isInitialized) {
+      console.warn("Strudel aún no está inicializado");
+      return;
+    }
 
-      // 2. Ejecutamos la escala
-      // Usamos .s("triangle") porque no requiere descargar archivos de internet
-      note("C3 E3 G3 B3 C4").s("triangle").play();
+    try {
+      // Reproducir la escala usando triangle synth
+      await note("C3 E3 G3 B3 C4").s("triangle").play();
 
       setIsPlaying(true);
-      console.log("🚀 Motor de audio Strudel iniciado con éxito");
+      console.log("Motor de audio Strudel iniciado con éxito");
     } catch (error) {
-      console.error("❌ Error al iniciar el audio:", error);
+      console.error("Error al iniciar el audio:", error);
+    }
+  };
+
+  const handleStop = () => {
+    try {
+      stopAll();
+      setIsPlaying(false);
+      console.log("Audio detenido");
+    } catch (error) {
+      console.error("Error al detener el audio:", error);
     }
   };
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px', fontFamily: 'sans-serif', color: '#333' }}>
-      <h1>🎹 TFG: Strudel en Raspberry Pi 5</h1>
-      <p>Estado: <strong>{isPlaying ? '✅ Sonando' : '🤫 Silencio'}</strong></p>
+      <h1>🎹 TFG: Strudel + Raspberry Pi 5</h1>
+      <p>Estado del audio: <strong>{isPlaying ? '✅ Funcionando' : '🤫 En espera'}</strong></p>
       
       <button 
         onClick={handlePlay}
         style={{
           padding: '20px 40px',
           fontSize: '1.5rem',
-          backgroundColor: '#6200ee',
+          backgroundColor: '#00cc66',
           color: 'white',
           border: 'none',
           borderRadius: '12px',
@@ -39,11 +58,11 @@ function App() {
           boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
         }}
       >
-        {isPlaying ? '🎶 ¡A tope!' : 'Lanzar Música'}
+        {isPlaying ? '🎶 ¡Sonando!' : 'Activar Sonido'}
       </button>
 
       <div style={{ marginTop: '30px' }}>
-        <small>Arquitectura: React - Strudel Web - Nginx</small>
+        <small>Infraestructura: React | Strudel | Nginx</small>
       </div>
     </div>
   );
