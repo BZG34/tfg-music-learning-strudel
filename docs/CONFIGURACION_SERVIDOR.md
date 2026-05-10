@@ -72,7 +72,7 @@ sudo apt update && sudo apt full-upgrade -y
 ```
 
 ### 2. Configuración de Red:
-Reserva de IP estática vía DHCP para asegurar la persistencia de la URL del servidor en la red local.
+Reserva desde tu RT la IP estática vía DHCP para asegurar la persistencia de la URL del servidor en la red local.
 
 ## 5. Entorno de Contenedores (Docker)
 El servidor utiliza Docker para la orquestación de servicios, garantizando que el entorno de desarrollo sea idéntico al de producción.
