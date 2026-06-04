@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="./styles/global.css" rel="stylesheet"/>
+<script src="./styles/tailwind.config.js"></script>
+</head>
+<body class="page-landing selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 z-50 w-full bg-[#0A0A0B] backdrop-blur-xl bg-opacity-80 border-b border-[#00FF41]/20 shadow-[0_0_15px_rgba(0,255,65,0.1)]">
+<nav class="flex justify-between items-center w-full px-6 py-4 max-w-[1920px] mx-auto">
+<div class="text-2xl font-black text-[#00FF41] tracking-widest font-['Space_Grotesk'] uppercase">PAMS</div>
+<div class="hidden md:flex items-center gap-8 font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-sm">
+<a class="text-[#00FF41] border-b-2 border-[#00FF41] pb-1" href="#">Inicio</a>
+<a class="text-slate-500 hover:text-slate-300 transition-colors" href="#">Editor en vivo</a>
+<a class="text-slate-500 hover:text-slate-300 transition-colors" href="#">Galería</a>
+<a class="text-slate-500 hover:text-slate-300 transition-colors" href="#">Lecciones</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-[#00FF41] hover:bg-[#00FF41]/5 p-2 rounded transition-all active:scale-95">terminal</button>
+<button class="material-symbols-outlined text-[#00FF41] hover:bg-[#00FF41]/5 p-2 rounded transition-all active:scale-95">notifications</button>
+<div class="w-8 h-8 rounded-full border border-[#00FF41]/30 overflow-hidden">
+<img alt="User profile avatar" data-alt="Close-up portrait of a digital artist with neon rim lighting in a dark tech studio environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrwr2NOkbueflO9JZhP7HCLdgrd0O-jDMGaCUf5HLfwPwcnn5toY3w7B8ABtj7YHePaFaIt4VamW79iS7UMHCwtjRQEttszG25C36uTjGiZL_Ho33F272VBdvbm0DsZ28y5rfbpbAUQTyajY3bo2spV9L56V5kpXu3cy0jHMLdf8MUSbBQAzhvr9qAl8M2-c_Kqs1wsTLyxv5jWHu9G88lrwRQUd6cEAAT3HH8DCPZxNIMSkQSUdPPjoBAMtpvryqOtnAsJf5-yIo"/>
+</div>
+</div>
+</nav>
+</header>
+<main class="pt-24">
+<!-- Hero Section -->
+<section class="relative px-6 md:px-12 py-20 flex flex-col items-center justify-center min-h-[819px] overflow-hidden">
+<div class="absolute inset-0 z-0 opacity-20 pointer-events-none">
+<div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,_#00FF41_0%,_transparent_50%)]"></div>
+</div>
+<div class="relative z-10 text-center max-w-4xl mx-auto">
+<span class="font-['Space_Grotesk'] text-label-caps text-[#00FF41] mb-4 block tracking-[0.3em] uppercase">Proyecto PAMS // Vol 1.0</span>
+<h1 class="font-display-lg text-display-lg text-on-background mb-6 leading-none">
+                    Transforma <span class="text-primary-container">Código</span> en <span class="text-secondary-container">Música</span>
+</h1>
+<p class="font-body-md text-on-surface-variant max-w-2xl mx-auto mb-10 text-lg">
+                    Domina la lógica de la música. PAMS te enseña a programar a través de la composición algorítmica utilizando Strudel. No se necesitan conocimientos teóricos, solo ritmo.
+                </p>
+<div class="flex flex-wrap justify-center gap-6">
+<button class="playhead-pulse bg-primary-container text-on-primary-container px-8 py-4 font-['Space_Grotesk'] font-bold uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all">
+                        Empieza a programar música
+                    </button>
+<button class="border border-outline-variant px-8 py-4 font-['Space_Grotesk'] font-bold uppercase tracking-widest text-on-surface hover:bg-surface-container transition-all">
+                        Ver pista de ejemplo
+                    </button>
+</div>
+</div>
+</section>
+<!-- Cómo funciona / Sequencer Visualizer -->
+<section class="px-6 md:px-12 py-20 bg-surface-container-lowest">
+<div class="max-w-[1440px] mx-auto">
+<div class="flex flex-col lg:flex-row gap-beat-gap items-center">
+<div class="w-full lg:w-1/2">
+<div class="syntax-aware-border bg-[#141416] p-6 rounded-lg shadow-2xl relative">
+<div class="flex items-center gap-2 mb-4">
+<div class="w-3 h-3 rounded-full bg-red-500/50"></div>
+<div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+<div class="w-3 h-3 rounded-full bg-green-500/50"></div>
+<span class="ml-4 font-code-block text-xs text-slate-500">main.strudel</span>
+</div>
+<pre class="font-code-block text-code-block text-primary-fixed leading-relaxed"><span class="text-secondary-fixed">stack</span>(
+  <span class="text-[#ffabf3]">s</span>(<span class="text-primary-container">"bd sd [~ bd] sd"</span>).<span class="text-secondary-fixed-dim">room</span>(<span class="text-primary-container">0.8</span>),
+  <span class="text-[#ffabf3]">s</span>(<span class="text-primary-container">"hh*8"</span>).<span class="text-secondary-fixed-dim">gain</span>(<span class="text-primary-container">"0.4 0.8"</span>),
+  <span class="text-[#ffabf3]">n</span>(<span class="text-primary-container">"c3(3,8)"</span>).<span class="text-secondary-fixed-dim">s</span>(<span class="text-primary-container">"saw"</span>).<span class="text-secondary-fixed-dim">lp</span>(<span class="text-primary-container">1200</span>)
+).<span class="text-secondary-fixed-dim">jux</span>(<span class="text-secondary-fixed">rev</span>)</pre>
+<div class="mt-6 flex items-center justify-between border-t border-white/5 pt-4">
+<span class="text-xs font-code-block text-slate-500">LINE 04 // BEAT 02</span>
+<div class="flex gap-2">
+<span class="bg-[#00FF41]/10 text-[#00FF41] px-2 py-1 text-[10px] font-bold rounded uppercase">Polyrhythm</span>
+<span class="bg-[#00dbe9]/10 text-[#00dbe9] px-2 py-1 text-[10px] font-bold rounded uppercase">Filter Sweep</span>
+</div>
+</div>
+</div>
+</div>
+<div class="w-full lg:w-1/2 flex flex-col gap-6">
+<div class="p-8 syntax-aware-border bg-surface border-primary-container/20 relative overflow-hidden group">
+<div class="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(0,255,65,0.05)_50%,transparent_100%)] group-hover:translate-x-full transition-transform duration-1000"></div>
+<h2 class="font-headline-md text-headline-md mb-4 text-on-surface">Feedback inmediato</h2>
+<p class="font-body-md text-on-surface-variant mb-6">
+                                Escribe una línea de código y escucha cómo cambia el ritmo al instante. El compilador en tiempo real conecta tu sintaxis directamente con un motor de audio basado en la web, convirtiendo lo abstracto en algo orgánico y tangible.
+                            </p>
+<div class="h-32 flex items-end gap-1 px-2 border-b border-primary-container/10">
+<div class="w-full bg-primary-container h-1/2 opacity-30"></div>
+<div class="w-full bg-primary-container h-3/4 opacity-50"></div>
+<div class="w-full bg-primary-container h-1/4 opacity-20"></div>
+<div class="w-full bg-primary-container h-full opacity-80"></div>
+<div class="w-full bg-primary-container h-1/2 opacity-40"></div>
+<div class="w-full bg-secondary-container h-3/4 opacity-60"></div>
+<div class="w-full bg-secondary-container h-2/3 opacity-40"></div>
+<div class="w-full bg-primary-container h-5/6 opacity-90 pulse"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Features Section -->
+<section class="px-6 md:px-12 py-20">
+<div class="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="md:col-span-2 p-10 syntax-aware-border bg-[#141416] hover:border-primary-container/40 transition-all group">
+<span class="material-symbols-outlined text-4xl text-primary-container mb-6 group-hover:scale-110 transition-transform">code_blocks</span>
+<h3 class="font-headline-md text-headline-md mb-4 uppercase tracking-tighter">Aprende haciendo</h3>
+<p class="font-body-md text-on-surface-variant text-lg">
+                        Olvídate de los tutoriales aburridos. Crearás cajas de ritmos, paisajes sonoros ambientales y éxitos de discoteca mientras aprendes sobre variables, matrices y lógica condicional. Es programación que vale la pena.
+                    </p>
+</div>
+<div class="p-10 syntax-aware-border bg-surface-container-high relative overflow-hidden">
+<img alt="Sound visualizer on screen" class="absolute inset-0 w-full h-full object-cover opacity-20 grayscale" data-alt="Close-up of a high-tech modular synthesizer with glowing knobs and colorful patch cables in a dark room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCci1CP_QzeiR8suiHZs0eBzEM53_dFp7-SJd7aMfSZGwvv1JV3WkxF812EDcecsRJAtbrdV406Chti1bbt-CG220C2toxRbhtDEXawMocxHIGpoIytPq4aUWrYegHmddzgDxCalBpUHIQvBisXlfygEA0bDNAxXHZEp9V-Uhr4EKRyCCrBSCueMfmaDb9-BVeiFe6iUItdYXrN1zqJalYv6jfkcU5Wd4AS8V_OqkgvjrnJ4wBCJ1PfwR7lYo7NyCacuoaeBBGNuJQ"/>
+<div class="relative z-10">
+<span class="material-symbols-outlined text-4xl text-secondary-container mb-6">music_note</span>
+<h3 class="font-headline-md text-headline-md mb-4 uppercase tracking-tighter">No hace falta teoría</h3>
+<p class="font-body-md text-on-surface-variant">
+                            Empieza por el ritmo. Convertirás los conceptos musicales en patrones lógicos que puedes visualizar de verdad.
+                        </p>
+</div>
+</div>
+<div class="p-10 syntax-aware-border bg-surface-container-high md:col-span-1">
+<span class="material-symbols-outlined text-4xl text-[#ffabf3] mb-6">groups</span>
+<h3 class="font-headline-md text-headline-md mb-4 uppercase tracking-tighter">Impulsado por la comunidad</h3>
+<p class="font-body-md text-on-surface-variant">
+                        Comparte tus «code-tracks» con una comunidad global. Haz un fork de los patrones de otros y remezclalos en tiempo real.
+                    </p>
+</div>
+<div class="md:col-span-2 flex items-center p-10 syntax-aware-border bg-[#0A0A0B] border-dashed border-primary-container/20">
+<div class="flex-1">
+<h3 class="font-headline-md text-headline-md mb-2 uppercase tracking-tighter">Experimenta con una herramienta profesional</h3>
+<p class="font-body-md text-on-surface-variant">
+                            Tendrás acceso a un motor de audio de baja latencia basado en la web, construido con tecnologías de vanguardia. Es el mismo motor que impulsa nuestro editor en vivo, optimizado para una experiencia fluida.
+                        </p>
+</div>
+<div class="hidden sm:block">
+<div class="w-32 h-32 rounded-full border-2 border-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container text-5xl">graphic_eq</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="px-6 md:px-12 py-32 text-center bg-[linear-gradient(to_bottom,#0A0A0B,#141416)]">
+<div class="max-w-3xl mx-auto border-t border-b border-primary-container/20 py-20 relative">
+<div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#0A0A0B] px-4 font-code-block text-[#00FF41] text-xs">¿LIST@ PARA EMPERZAR?</div>
+<h2 class="font-display-lg text-display-lg mb-8 tracking-tighter">Fluye con la <span class="text-primary-container underline decoration-wavy">Sintaxis</span></h2>
+<p class="font-body-md text-on-surface-variant mb-12 text-xl italic opacity-80">
+                    "Nunca me lo había pasado tan bien aprendiendo programación." — Estudiante Beta
+                </p>
+<div class="flex justify-center">
+<button class="group relative px-12 py-6 bg-transparent overflow-hidden">
+<div class="absolute inset-0 border-2 border-[#00FF41] group-hover:scale-105 transition-transform duration-300"></div>
+<div class="absolute inset-0 bg-[#00FF41] translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+<span class="relative z-10 font-['Space_Grotesk'] font-black uppercase text-xl tracking-widest text-[#00FF41] group-hover:text-[#0A0A0B]">Empieza a programar música</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-8 px-12 flex flex-col md:flex-row justify-between items-center border-t border-[#00FF41]/10 bg-[#0A0A0B]">
+<div class="font-['Space_Grotesk'] font-bold text-[#00FF41] text-lg mb-4 md:mb-0">PAMS <span class="opacity-50 font-normal ml-2">// ¿Quién dijo que programar no es divertido?</span></div>
+<div class="flex gap-8 font-['Space_Grotesk'] text-xs uppercase tracking-widest text-slate-600">
+<a class="hover:text-[#00FF41] transition-colors" href="#">Documentación</a>
+<a class="hover:text-[#00FF41] transition-colors" href="#">GitHub</a>
+<a class="hover:text-[#00FF41] transition-colors" href="#">Privacidad</a>
+<a class="hover:text-[#00FF41] transition-colors" href="#">Términos y condiciones</a>
+</div>
+<div class="mt-4 md:mt-0 font-['Space_Grotesk'] text-[10px] opacity-40 uppercase tracking-tighter">
+            © 2026 PAMS
+        </div>
+</footer>
+<!-- SideNav (Mobile Drawer / Hidden by default on landing) -->
+<div class="fixed left-0 top-0 h-full flex flex-col z-40 bg-[#141416] border-r border-[#00FF41]/10 w-64 -translate-x-full lg:translate-x-0 transition-transform lg:hidden">
+<div class="p-6 border-b border-[#00FF41]/10">
+<h4 class="font-['Space_Grotesk'] text-xs font-bold text-[#00FF41] uppercase tracking-widest">Studio Session</h4>
+<p class="text-[10px] text-slate-500 font-mono">BPM: 128</p>
+</div>
+<nav class="flex-1 py-4 font-['Space_Grotesk'] text-sm">
+<a class="bg-[#00FF41]/10 text-[#00FF41] border-l-4 border-[#00FF41] shadow-[0_0_10px_rgba(0,255,65,0.2)] py-3 px-4 flex items-center gap-3" href="#">
+<span class="material-symbols-outlined">grid_view</span> Inicio
+            </a>
+<a class="text-slate-500 py-3 px-4 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">folder_open</span> Proyectos
+            </a>
+<a class="text-slate-500 py-3 px-4 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">graphic_eq</span> Sequenciador
+            </a>
+<a class="text-slate-500 py-3 px-4 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">forum</span> Comunidad
+            </a>
+<a class="text-slate-500 py-3 px-4 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">settings</span> Ajustes
+            </a>
+</nav>
+<div class="p-4 border-t border-[#00FF41]/10 flex flex-col gap-2">
+<a class="text-slate-600 text-[10px] flex items-center gap-2 hover:text-[#00FF41] transition-colors uppercase font-bold tracking-widest" href="#">
+<span class="material-symbols-outlined text-sm">menu_book</span> Documentación
+            </a>
+<a class="text-slate-600 text-[10px] flex items-center gap-2 hover:text-[#00FF41] transition-colors uppercase font-bold tracking-widest" href="#">
+<span class="material-symbols-outlined text-sm">developer_board</span> Estado del sistema
+            </a>
+</div>
+</div>
+</body></html>
