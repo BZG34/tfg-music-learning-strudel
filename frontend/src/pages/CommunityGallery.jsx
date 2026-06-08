@@ -1,0 +1,1 @@
+export default function CommunityGallery() { return <div class="page-community"><h2>Gallery</h2></div>; }

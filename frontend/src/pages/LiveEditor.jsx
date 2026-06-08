@@ -1,0 +1,1 @@
+export default function LiveEditor() { return <div class="page-live-editor"><h2>Live Editor</h2></div>; }

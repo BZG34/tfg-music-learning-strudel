@@ -1,0 +1,1 @@
+export default function LandingPage() { return <div class="page-landing"><h2>Landing Page</h2></div>; }
