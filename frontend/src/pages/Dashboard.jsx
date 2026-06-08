@@ -2,30 +2,27 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 export default function Dashboard() {
-  // Rellenar estos estados con un fetch() a la FastAPI
-  const [studentName] = useState("Developer");
-  const [progress] = useState(30); // 30% de progreso
+  const [studentName] = useState('Developer');
+  const [progress] = useState(30);
   const [completedLessons] = useState(3);
   const [totalLessons] = useState(10);
 
   return (
-    <div className="page-dashboard bg-[#0A0A0B] text-white min-h-screen selection:bg-[#00FF41]/30 selection:text-[#00FF41]">
-      
-      {/* TopAppBar Shell */}
-      <header className="fixed top-0 z-50 w-full bg-[#0A0A0B] backdrop-blur-xl bg-opacity-80 border-b border-[#00FF41]/20 shadow-[0_0_15px_rgba(0,255,65,0.1)]">
+    <div className="page-dashboard bg-[#0A0A0B] text-on-background font-body-md min-h-screen selection:bg-primary-container/30 selection:text-primary-container">
+      <header className="fixed top-0 z-50 w-full bg-[#0A0A0B]/80 backdrop-blur-xl border-b border-[#00FF41]/20 shadow-[0_0_15px_rgba(0,255,65,0.1)]">
         <div className="flex justify-between items-center w-full px-6 py-4 max-w-[1920px] mx-auto">
           <div className="flex items-center gap-8">
             <Link to="/" className="text-2xl font-black text-[#00FF41] tracking-widest font-['Space_Grotesk'] uppercase">PAMS</Link>
-            <nav className="hidden md:flex gap-6 items-center font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-sm">
-              <Link className="text-[#00FF41] border-b-2 border-[#00FF41] pb-1" to="/dashboard">Dashboard</Link>
-              <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/editor">Live Editor</Link>
-              <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/gallery">Gallery</Link>
-              <span className="text-slate-500 opacity-40 cursor-not-allowed">Lessons</span>
+            <nav className="hidden md:flex gap-6 items-center">
+              <Link className="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-[#00FF41] border-b-2 border-[#00FF41] pb-1" to="/dashboard">Dashboard</Link>
+              <Link className="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-slate-500 hover:text-slate-300 transition-colors" to="/editor">Live Editor</Link>
+              <Link className="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-slate-500 hover:text-slate-300 transition-colors" to="/gallery">Gallery</Link>
+              <span className="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-slate-500 opacity-40 cursor-not-allowed">Lessons</span>
             </nav>
           </div>
           <div className="flex items-center gap-4">
-            <button className="material-symbols-outlined text-[#00FF41] hover:bg-[#00FF41]/5 p-2 rounded transition-all">terminal</button>
-            <button className="material-symbols-outlined text-[#00FF41] hover:bg-[#00FF41]/5 p-2 rounded transition-all">notifications</button>
+            <button type="button" className="material-symbols-outlined text-[#00FF41] hover:bg-[#00FF41]/5 p-2 rounded transition-all">terminal</button>
+            <button type="button" className="material-symbols-outlined text-[#00FF41] hover:bg-[#00FF41]/5 p-2 rounded transition-all">notifications</button>
             <div className="w-8 h-8 rounded-full border border-[#00FF41]/30 overflow-hidden">
               <img alt="User profile avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80" />
             </div>
@@ -33,7 +30,6 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* SideNavBar Shell */}
       <aside className="fixed left-0 top-0 h-full flex flex-col z-40 bg-[#141416] border-r border-[#00FF41]/10 w-64 pt-20">
         <div className="p-6 border-b border-[#00FF41]/10 mb-4">
           <div className="flex items-center gap-3">
@@ -41,7 +37,7 @@ export default function Dashboard() {
               <span className="material-symbols-outlined text-[#00FF41]">graphic_eq</span>
             </div>
             <div>
-              <h3 className="font-['Space_Grotesk'] text-sm font-bold text-white">Studio Session</h3>
+              <h3 className="font-['Space_Grotesk'] text-sm font-bold text-on-surface">Studio Session</h3>
               <p className="font-['Space_Grotesk'] text-[10px] text-[#00FF41] opacity-70">BPM: 128</p>
             </div>
           </div>
@@ -73,11 +69,8 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* Main Content Canvas */}
       <main className="ml-64 pt-24 px-8 pb-12">
         <div className="max-w-6xl mx-auto space-y-8">
-          
-          {/* Header Section */}
           <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               <span className="text-xs font-bold text-[#00FF41] uppercase mb-2 block tracking-widest font-['Space_Grotesk']">Student Workspace</span>
@@ -95,10 +88,7 @@ export default function Dashboard() {
             </div>
           </section>
 
-          {/* Bento Grid Dashboard */}
           <div className="grid grid-cols-12 gap-6">
-            
-            {/* Continue Learning Card */}
             <div className="col-span-12 lg:col-span-8 bg-[#141416] rounded-xl border border-[#00FF41]/10 overflow-hidden group hover:border-[#00FF41]/40 transition-all duration-300">
               <div className="relative h-64 overflow-hidden bg-black flex items-center justify-center">
                 <img alt="Cyberpunk workstation" className="w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80" />
@@ -122,7 +112,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Recent Activity */}
             <div className="col-span-12 lg:col-span-4">
               <div className="bg-[#141416] p-6 rounded-xl border border-[#00FF41]/10 h-full flex flex-col justify-between">
                 <div>
@@ -163,12 +152,10 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </main>
 
-      {/* Terminal Input UI Footer Overlay */}
       <div className="fixed bottom-0 left-64 right-0 h-10 bg-black border-t border-[#00FF41]/20 px-6 flex items-center gap-3 z-30">
         <span className="material-symbols-outlined text-[#00FF41] text-sm">terminal</span>
         <span className="text-xs font-mono text-[#00FF41]">&gt;</span>
