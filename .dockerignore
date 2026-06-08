@@ -1,0 +1,12 @@
+.git
+.venv
+venv
+env
+node_modules
+.vscode
+.idea
+database_data
+postgres_data
+dist
+build
+.DS_Store
