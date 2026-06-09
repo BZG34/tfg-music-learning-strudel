@@ -1,5 +1,10 @@
-tailwind.config = {
+/** @type {import('tailwindcss').Config} */
+export default {
   darkMode: "class",
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
   theme: {
     extend: {
       colors: {
@@ -72,17 +77,12 @@ tailwind.config = {
       },
       fontSize: {
         "code-block": ["14px", { lineHeight: "1.6", fontWeight: "400" }],
-        "display-lg": [
-          "48px",
-          { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700" }
-        ],
+        "display-lg": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700" }],
         "body-md": ["16px", { lineHeight: "1.5", fontWeight: "400" }],
-        "label-caps": [
-          "12px",
-          { lineHeight: "1", letterSpacing: "0.1em", fontWeight: "600" }
-        ],
+        "label-caps": ["12px", { lineHeight: "1", letterSpacing: "0.1em", fontWeight: "600" }],
         "headline-md": ["32px", { lineHeight: "1.2", fontWeight: "600" }]
       }
     }
-  }
-};
+  },
+  plugins: [],
+}
