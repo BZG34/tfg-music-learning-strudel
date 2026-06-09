@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { note } from '@strudel/core';
-import { initAudio } from '@strudel/web';
+import { evaluate, hush, initStrudel } from '@strudel/web';
+import '@strudel/webaudio';
 
 export default function LiveEditor() {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -10,16 +10,17 @@ export default function LiveEditor() {
 
   const handlePlay = async () => {
     try {
-      await initAudio();
-      note('C3 E3 G3 B3 C4').s('triangle').play();
+      await initStrudel();
+      evaluate('note("C3 E3 G3 B3 C4").s("triangle").play()');
       setIsPlaying(true);
     } catch (error) {
       console.error('Error al inicializar el motor de audio:', error);
+      setIsPlaying(false);
     }
   };
 
   const handleStop = () => {
-    window.strudel?.stop?.();
+    hush();
     setIsPlaying(false);
   };
 
