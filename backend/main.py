@@ -1,16 +1,15 @@
 import os
 from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.ext.declarative import declarative_base
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
-# 1. Configuración de la Base de Datos
-# Sacamos la URL de las variables de entorno que inyecta Docker
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://tfg_user:secret@localhost:5432/musica_db")
+# Importamos las capas arquitectónicas
+import crud, models, schemas
+from database import engine, SessionLocal
 
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
+# 1. Crea las tablas en PostgreSQL automáticamente si no existen
+models.Base.metadata.create_all(bind=engine)
 
 # 2. Instancia de FastAPI
 app = FastAPI(
@@ -19,7 +18,16 @@ app = FastAPI(
     version="0.1.0"
 )
 
-# 3. Dependencia para obtener la sesión de la DB
+# 3. Configuración CORS para que React (en otro puerto) pueda acceder
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # En producción cambiar por la IP de la Raspberry
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# 4. Dependencia para obtener la sesión de la DB
 def get_db():
     db = SessionLocal()
     try:
@@ -27,7 +35,25 @@ def get_db():
     finally:
         db.close()
 
-# --- ENDPOINTS ---
+# 5. POBLADO INICIAL (Seeding): Inyectar lecciones base al arrancar
+@app.on_event("startup")
+def seed_database():
+    db = SessionLocal()
+    if not crud.get_lesson_by_number(db, lesson_number="1"):
+        crud.create_lesson(db, schemas.LessonCreate(
+            lesson_number="1",
+            title="Your First Beat",
+            hint_code='s("bd*4")'
+        ))
+    if not crud.get_lesson_by_number(db, lesson_number="4"):
+        crud.create_lesson(db, schemas.LessonCreate(
+            lesson_number="4",
+            title="Polyphonic Cycles",
+            hint_code='s("hh*8").gain("0.4 0.8").lpf(800)'
+        ))
+    db.close()
+
+# --- ENDPOINTS ORIGINALES ---
 
 @app.get("/")
 def read_root():
@@ -40,12 +66,30 @@ def read_root():
 @app.get("/health-check")
 def db_check(db: Session = Depends(get_db)):
     """
-    Este endpoint verifica si la conexión con PostgreSQL es real.
-    Para las pruebas iniciales en la Raspberry Pi.
+    Verifica si la conexión con PostgreSQL es real en el almacenamiento NVMe.
     """
     try:
-        # Ejecutamos una consulta simple para verificar la conexión
         db.execute(text("SELECT 1"))
         return {"database": "connected", "storage": "NVMe SSD detected"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error de conexión: {str(e)}")
+
+# --- NUEVOS ENDPOINTS DINÁMICOS ---
+
+@app.get("/api/lessons/{lesson_number}", response_model=schemas.Lesson)
+def read_lesson(lesson_number: str, db: Session = Depends(get_db)):
+    lesson = crud.get_lesson_by_number(db, lesson_number=lesson_number)
+    if lesson is None:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+    return lesson
+
+@app.post("/api/users/", response_model=schemas.User)
+def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_email(db, email=user.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email ya registrado")
+    return crud.create_user(db=db, user=user)
+
+@app.post("/api/users/{user_id}/projects/", response_model=schemas.Project)
+def create_project_for_user(user_id: int, project: schemas.ProjectCreate, db: Session = Depends(get_db)):
+    return crud.create_user_project(db=db, project=project, user_id=user_id)

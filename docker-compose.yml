@@ -15,6 +15,12 @@ services:
     # Red compartida para que backend y frontend puedan resolver el servicio por nombre.
     networks:
       - tfg_network
+    # --- Control de salud ---
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-admin} -d ${DB_NAME:-musica_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend:
     # API de la aplicación, construida desde el directorio backend.
@@ -24,11 +30,13 @@ services:
     container_name: music_api
     restart: always
     environment:
-      # URL interna de conexión a PostgreSQL dentro de la red de Docker.
-      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      # URL interna de conexión a PostgreSQL con los mismos valores por defecto que la DB
+      DATABASE_URL: postgresql://${DB_USER:-admin}:${DB_PASSWORD:-secret}@db:5432/${DB_NAME:-musica_db}
     # El backend depende de la base de datos para poder iniciar correctamente.
     depends_on:
-      - db
+      db:
+        # --- Esperar a que la BD esté levantada antes de arrancar el resto ---
+        condition: service_healthy
     # Misma red interna para comunicación con la base de datos y el frontend.
     networks:
       - tfg_network
