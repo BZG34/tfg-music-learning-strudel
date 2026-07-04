@@ -18,6 +18,7 @@ function App() {
         
         {/* Ruta del Editor Interactivo */}
         <Route path="/editor" element={<LiveEditor />} />
+        <Route path="/editor/:lessonId" element={<LiveEditor />} />
         
         {/* Ruta de la Galería de la Comunidad */}
         <Route path="/gallery" element={<CommunityGallery />} />

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { evaluate, hush, initStrudel, samples } from '@strudel/web';
 import '@strudel/webaudio';
 
@@ -66,6 +66,7 @@ const strudelTheme = EditorView.theme({
   '.tok-typeName':      { color: '#ffabf3' },
 }, { dark: true });
 
+/*
 // ─── Default starter code ────────────────────────────────────────────────────
 const DEFAULT_CODE = `// Lección 04 — Polyphonic Cycles
 // Usa stack() para combinar capas rítmicas
@@ -88,6 +89,10 @@ const LESSON = {
     { done: false, text: 'Aplica un filtro low-pass a la segunda capa' },
   ],
 };
+*/
+
+const DEFAULT_CODE = `// Conectando con la base de datos...\n`;
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 // ─── Quick command parser ────────────────────────────────────────────────────
 function parseQuickCommand(raw, currentCode, setBpm, setCode, addLog, evalCode) {
@@ -170,6 +175,9 @@ function SpectrumBar({ isPlaying, delay = 0, baseH = 4 }) {
 
 // ─── Main component ──────────────────────────────────────────────────────────
 export default function LiveEditor() {
+  const { lessonId } = useParams(); // <-- Captura el número de la URL
+  // Estado dinámico para la lección
+  const [lesson, setLesson] = useState({ number: '...', title: 'Cargando...', objectives: [], hint: '' });
   const [isPlaying,    setIsPlaying]    = useState(false);
   const [isIniting,    setIsIniting]    = useState(false);
   const [bpm,          setBpm]          = useState(128);
@@ -205,31 +213,36 @@ export default function LiveEditor() {
 
     const loadLesson = async () => {
       try {
-        addLog('system', `Cargando lección ${LESSON.number} desde PostgreSQL...`);
+        const idToLoad = lessonId || "4"; // Si no hay ID en la URL, carga la 4
+        addLog('system', `Cargando lección ${idToLoad} desde PostgreSQL...`);
 
-        const response = await fetch(`${API_BASE_URL}/api/lessons/${LESSON.number}`);
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
+        const response = await fetch(`${API_BASE_URL}/api/lessons/${idToLoad}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const lessonData = await response.json();
         if (isCancelled) return;
 
-        const nextCode = lessonData.hint_code?.trim() || DEFAULT_CODE;
+        // Actualiza el estado con los datos reales de la BD
+        setLesson({
+          number: lessonData.lesson_number,
+          title: lessonData.title,
+          hint: lessonData.hint_code,
+          objectives: [{ done: false, text: "Aplica los conceptos usando Strudel" }]
+        });
+
+        const nextCode = `// Lección ${lessonData.lesson_number} — ${lessonData.title}\n\n${lessonData.hint_code || '// Escribe tu código'}`;
         setStarterCode(nextCode);
         addLog('success', `Lección ${lessonData.lesson_number} cargada desde PostgreSQL`);
       } catch (err) {
         if (isCancelled) return;
-        addLog('warning', `No se pudo cargar la lección desde BD: ${err?.message ?? String(err)}. Se usa el código local.`);
+        addLog('warning', `No se pudo cargar la lección desde BD: ${err?.message ?? String(err)}.`);
       }
     };
 
     loadLesson();
 
-    return () => {
-      isCancelled = true;
-    };
-  }, [addLog]);
+    return () => { isCancelled = true; };
+  }, [lessonId, addLog]); // <-- IMPORTANTE: lessonId en las dependencias
 
   // ── Sync fetched code into CodeMirror when it changes ───────────────────
   useEffect(() => {
@@ -358,7 +371,7 @@ export default function LiveEditor() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title: `Sesión_${LESSON.number}_BPM${bpm}`,
+          title: `Sesión_${lesson.number}_BPM${bpm}`,
           strudel_code: currentCode,
           bpm: bpm
         })
@@ -434,9 +447,9 @@ export default function LiveEditor() {
               <div className="p-6">
                 <div className="flex items-center gap-2 mb-6">
                   <span className="px-2 py-1 bg-primary-container/10 text-primary-container font-label-caps text-label-caps border border-primary-container/20">
-                    Lesson {LESSON.number}
+                    Lesson {lesson.number}
                   </span>
-                  <h2 className="font-headline-md text-xl text-on-surface">{LESSON.title}</h2>
+                  <h2 className="font-headline-md text-xl text-on-surface">{lesson.title}</h2>
                 </div>
                 <div className="space-y-6">
                   <div className="prose prose-invert prose-sm">
@@ -454,7 +467,7 @@ export default function LiveEditor() {
                       Objetivos
                     </h3>
                     <ul className="space-y-4">
-                      {LESSON.objectives.map((obj, i) => (
+                      {lesson.objectives.map((obj, i) => (
                         <li key={i} className="flex items-start gap-3">
                           <div className={`mt-1 flex-shrink-0 w-4 h-4 border flex items-center justify-center transition-colors ${
                             obj.done ? 'border-[#00FF41] bg-[#00FF41]/10' : 'border-outline'

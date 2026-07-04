@@ -16,6 +16,9 @@ RUN npm run build
 # 2: Producción (Servidor)
 # Usamos Nginx para servir los archivos, que es mucho más ligero que Node.js
 FROM nginx:stable-alpine
+# Copiamos la app de React compilada
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copiamos los archivos construidos desde la etapa anterior a la carpeta de Nginx
 COPY --from=build-stage /app/dist /usr/share/nginx/html
