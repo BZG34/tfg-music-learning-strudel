@@ -76,6 +76,8 @@ stack(
   s("~ [cp, sd]").room(0.4)
 ).slow(2)`;
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 // ─── Lesson data ─────────────────────────────────────────────────────────────
 const LESSON = {
   number: '04',
@@ -171,6 +173,7 @@ export default function LiveEditor() {
   const [isPlaying,    setIsPlaying]    = useState(false);
   const [isIniting,    setIsIniting]    = useState(false);
   const [bpm,          setBpm]          = useState(128);
+  const [starterCode,  setStarterCode]   = useState(DEFAULT_CODE);
   const [logs,         setLogs]         = useState([
     { id: 0, type: 'system', message: 'PAMS kernel v1.0.4 — motor listo. Pulsa ▶ o Ctrl+Enter para evaluar.', time: now() },
   ]);
@@ -196,6 +199,56 @@ export default function LiveEditor() {
     logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
 
+  // ── Load lesson data from PostgreSQL ─────────────────────────────────────
+  useEffect(() => {
+    let isCancelled = false;
+
+    const loadLesson = async () => {
+      try {
+        addLog('system', `Cargando lección ${LESSON.number} desde PostgreSQL...`);
+
+        const response = await fetch(`${API_BASE_URL}/api/lessons/${LESSON.number}`);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const lessonData = await response.json();
+        if (isCancelled) return;
+
+        const nextCode = lessonData.hint_code?.trim() || DEFAULT_CODE;
+        setStarterCode(nextCode);
+        addLog('success', `Lección ${lessonData.lesson_number} cargada desde PostgreSQL`);
+      } catch (err) {
+        if (isCancelled) return;
+        addLog('warning', `No se pudo cargar la lección desde BD: ${err?.message ?? String(err)}. Se usa el código local.`);
+      }
+    };
+
+    loadLesson();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [addLog]);
+
+  // ── Sync fetched code into CodeMirror when it changes ───────────────────
+  useEffect(() => {
+    if (!cmViewRef.current) return;
+
+    const view = cmViewRef.current;
+    const currentCode = view.state.doc.toString();
+
+    if (currentCode === starterCode) return;
+
+    view.dispatch({
+      changes: {
+        from: 0,
+        to: view.state.doc.length,
+        insert: starterCode,
+      },
+    });
+  }, [starterCode]);
+
   // ── CodeMirror setup ───────────────────────────────────────────────────────
   useEffect(() => {
     if (!editorRef.current || cmViewRef.current) return;
@@ -214,7 +267,7 @@ export default function LiveEditor() {
     ]);
 
     const state = EditorState.create({
-      doc: DEFAULT_CODE,
+      doc: starterCode,
       extensions: [
         basicSetup,
         javascript(),
@@ -293,6 +346,33 @@ export default function LiveEditor() {
       setTimeout(() => handleEval(), 50);
     }
   }, [isPlaying, addLog, handleEval]);
+
+  // ── Guardar proyecto en PostgreSQL ───────────────────────────────────────
+  const handleSaveTrack = async () => {
+    const currentCode = getCode();
+    addLog('system', 'Guardando pista en el servidor...');
+    
+    try {
+      // Usamos el User ID 1 temporalmente hasta tener el Login
+      const response = await fetch(`${API_BASE_URL}/api/users/1/projects/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: `Sesión_${LESSON.number}_BPM${bpm}`,
+          strudel_code: currentCode,
+          bpm: bpm
+        })
+      });
+
+      if (response.ok) {
+        addLog('success', '¡Pista guardada permanentemente en PostgreSQL!');
+      } else {
+        addLog('error', 'Fallo al guardar: el usuario 1 no existe en la BD.');
+      }
+    } catch (err) {
+      addLog('error', 'Error de red al intentar guardar la pista.');
+    }
+  };
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
@@ -627,7 +707,7 @@ export default function LiveEditor() {
             <button
               type="button"
               className="mt-6 w-full py-3 border border-[#00FF41]/20 text-[#00FF41] text-xs font-bold uppercase tracking-widest font-['Space_Grotesk'] hover:bg-[#00FF41]/10 transition-all flex items-center justify-center gap-2"
-              onClick={() => addLog('info', 'Guardado en Local Storage (persistencia backend próximamente)')}
+              onClick={handleSaveTrack}
             >
               <span className="material-symbols-outlined text-sm">save</span>
               Guardar pista

@@ -4,6 +4,8 @@ services:
     image: postgres:17-alpine
     container_name: music_db
     restart: always
+    ports:
+      - "5432:5432"
     environment:
       # Valores configurables desde variables de entorno, con valores por defecto para desarrollo.
       POSTGRES_USER: ${DB_USER:-admin}
@@ -29,6 +31,8 @@ services:
       dockerfile: Dockerfile
     container_name: music_api
     restart: always
+    ports:
+      - "8000:8000"
     environment:
       # URL interna de conexión a PostgreSQL con los mismos valores por defecto que la DB
       DATABASE_URL: postgresql://${DB_USER:-admin}:${DB_PASSWORD:-secret}@db:5432/${DB_NAME:-musica_db}
