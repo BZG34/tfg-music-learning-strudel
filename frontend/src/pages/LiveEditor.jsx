@@ -208,42 +208,66 @@ export default function LiveEditor() {
     logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
 
-  // ── Load lesson data from PostgreSQL ─────────────────────────────────────
+  // ── Load lesson or project data from PostgreSQL ─────────────────────────
   useEffect(() => {
     let isCancelled = false;
 
-    const loadLesson = async () => {
+    const loadLessonOrProject = async () => {
       try {
         const idToLoad = lessonId || "4"; // Si no hay ID en la URL, carga la 4
-        addLog('system', `Cargando lección ${idToLoad} desde PostgreSQL...`);
+        addLog('system', `Buscando datos del ID ${idToLoad} en PostgreSQL...`);
 
-        const response = await fetch(`${API_BASE_URL}/api/lessons/${idToLoad}`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        // 1. PRIMER INTENTO: Buscar como Lección
+        let response = await fetch(`${API_BASE_URL}/api/lessons/${idToLoad}`);
+        
+        if (response.ok) {
+          const lessonData = await response.json();
+          if (isCancelled) return;
 
-        const lessonData = await response.json();
-        if (isCancelled) return;
+          // Actualiza el estado con los datos reales de la BD
+          setLesson({
+            number: lessonData.lesson_number,
+            title: lessonData.title,
+            hint: lessonData.hint_code,
+            objectives: [{ done: false, text: "Aplica los conceptos usando Strudel" }]
+          });
+          const nextCode = `// Lección ${lessonData.lesson_number} — ${lessonData.title}\n\n${lessonData.hint_code || '// Escribe tu código'}`;
+          setStarterCode(nextCode);
+          addLog('success', `Lección ${lessonData.lesson_number} cargada correctamente.`);
+          return; // Salimos de la función con éxito
+        }
 
-        // Actualiza el estado con los datos reales de la BD
-        setLesson({
-          number: lessonData.lesson_number,
-          title: lessonData.title,
-          hint: lessonData.hint_code,
-          objectives: [{ done: false, text: "Aplica los conceptos usando Strudel" }]
-        });
+        // 2. SEGUNDO INTENTO: Si no es lección (404), buscar como Proyecto de la Galería
+        response = await fetch(`${API_BASE_URL}/api/projects/${idToLoad}`);
+        if (response.ok) {
+          const projectData = await response.json();
+          if (isCancelled) return;
 
-        const nextCode = `// Lección ${lessonData.lesson_number} — ${lessonData.title}\n\n${lessonData.hint_code || '// Escribe tu código'}`;
-        setStarterCode(nextCode);
-        addLog('success', `Lección ${lessonData.lesson_number} cargada desde PostgreSQL`);
+          // Actualiza el estado con los datos reales de la BD
+          setLesson({
+            number: `P-${projectData.id}`,
+            title: projectData.title,
+            hint: "// Estás remezclando un proyecto de la comunidad.",
+            objectives: [{ done: true, text: "Explora y modifica esta pista." }]
+          });
+          setBpm(projectData.bpm || 128);
+          setStarterCode(projectData.strudel_code);
+          addLog('success', `Pista de la comunidad cargada y lista para remezclar.`);
+          return; // Salimos con éxito
+        }
+
+        // Si tampoco es proyecto, lanzamos error
+        throw new Error(`HTTP ${response.status}`);
       } catch (err) {
         if (isCancelled) return;
-        addLog('warning', `No se pudo cargar la lección desde BD: ${err?.message ?? String(err)}.`);
+        addLog('warning', `No se encontró en BD (ID: ${lessonId}): ${err?.message ?? String(err)}`);
       }
     };
 
-    loadLesson();
+    loadLessonOrProject();
 
     return () => { isCancelled = true; };
-  }, [lessonId, addLog]); // <-- IMPORTANTE: lessonId en las dependencias
+  }, [lessonId, addLog]); // <-- Dependencias intactas, IMPORTANTE: lessonId en las dependencias
 
   // ── Sync fetched code into CodeMirror when it changes ───────────────────
   useEffect(() => {

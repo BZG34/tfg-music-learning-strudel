@@ -110,3 +110,10 @@ def read_all_projects(skip: int = 0, limit: int = 100, db: Session = Depends(get
     Devuelve todas las pistas de música guardadas en PostgreSQL para la Galería Comunitaria.
     """
     return crud.get_projects(db, skip=skip, limit=limit)
+
+@app.get("/api/projects/{project_id}", response_model=schemas.Project)
+def read_project(project_id: int, db: Session = Depends(get_db)):
+    project = crud.get_project(db, project_id=project_id)
+    if project is None:
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+    return project

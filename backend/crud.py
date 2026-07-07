@@ -18,6 +18,10 @@ def create_user(db: Session, user: schemas.UserCreate):
 def get_projects(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Project).offset(skip).limit(limit).all()
 
+# Para sacar un proyecto específico
+def get_project(db: Session, project_id: int):
+    return db.query(models.Project).filter(models.Project.id == project_id).first()
+
 def create_user_project(db: Session, project: schemas.ProjectCreate, user_id: int):
     db_project = models.Project(**project.model_dump(), owner_id=user_id)
     db.add(db_project)
