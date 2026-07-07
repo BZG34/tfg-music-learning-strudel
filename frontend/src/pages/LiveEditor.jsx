@@ -192,6 +192,7 @@ export default function LiveEditor() {
   const cmViewRef    = useRef(null);   // CodeMirror EditorView
   const logEndRef    = useRef(null);   // auto-scroll anchor
   const logIdRef     = useRef(1);
+  const strudelInitedRef = useRef(false); // Controla si el motor ya se ha descargado
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   function now() {
@@ -308,17 +309,24 @@ export default function LiveEditor() {
   }, []);
 
   // ── Strudel eval ──────────────────────────────────────────────────────────
+  // ── Strudel eval ──────────────────────────────────────────────────────────
   const handleEval = useCallback(async () => {
     if (isIniting) return;
     const code = getCode();
 
     try {
       setIsIniting(true);
-      addLog('system', 'Inicializando motor de audio…');
-      await initStrudel({
-        bpm,
-        prebake: () => samples('github:tidalcycles/dirt-samples'),
-      });
+      
+      // SOLO DESCARGAMOS DE GITHUB LA PRIMERA VEZ QUE SE PULSA PLAY
+      if (!strudelInitedRef.current) {
+        addLog('system', 'Iniciando motor de audio y cacheando samples...');
+        await initStrudel({
+          bpm,
+          prebake: () => samples('github:tidalcycles/dirt-samples'),
+        });
+        strudelInitedRef.current = true; // Marcamos como descargado
+      }
+
       addLog('system', `Evaluando patrón @ ${bpm} BPM…`);
       await evaluate(code);
       setIsPlaying(true);
