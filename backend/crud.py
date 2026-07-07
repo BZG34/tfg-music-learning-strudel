@@ -29,6 +29,10 @@ def create_user_project(db: Session, project: schemas.ProjectCreate, user_id: in
     db.refresh(db_project)
     return db_project
 
+def get_user_projects(db: Session, user_id: int):
+    """Devuelve todos los proyectos que pertenecen a un usuario concreto."""
+    return db.query(models.Project).filter(models.Project.owner_id == user_id).all()
+
 # --- OPERACIONES DE LECCIONES ---
 def get_lesson_by_number(db: Session, lesson_number: str):
     return db.query(models.Lesson).filter(models.Lesson.lesson_number == lesson_number).first()

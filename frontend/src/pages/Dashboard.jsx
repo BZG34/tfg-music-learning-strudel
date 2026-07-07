@@ -1,11 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 export default function Dashboard() {
-  const [studentName] = useState('Developer');
+  const [studentName] = useState('Borja_Admin');
   const [progress] = useState(30);
   const [completedLessons] = useState(3);
   const [totalLessons] = useState(10);
+
+  // --- ESTADOS PARA LOS PROYECTOS ---
+  const [myTracks, setMyTracks] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMyTracks = async () => {
+      try {
+        // Usamos el ID 1 temporalmente hasta implementar el Login
+        const response = await fetch(`${API_BASE_URL}/api/users/1/projects/`);
+        if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+        const data = await response.json();
+        setMyTracks(data);
+      } catch (error) {
+        console.error("Error al cargar los proyectos:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMyTracks();
+  }, []);
 
   return (
     <div className="page-dashboard bg-[#0A0A0B] text-on-background font-body-md min-h-screen selection:bg-primary-container/30 selection:text-primary-container">
@@ -153,6 +176,48 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+
+          {/* ─── MIS PISTAS GUARDADAS DESDE POSTGRESQL ─── */}
+          <section className="pt-8">
+            <div className="flex items-center justify-between mb-6 border-b border-[#00FF41]/10 pb-2">
+              <h2 className="text-xl font-bold font-['Space_Grotesk'] tracking-widest uppercase">Mis Pistas Guardadas</h2>
+              <span className="text-[#00FF41] font-mono text-xs">{myTracks.length} TRACKS</span>
+            </div>
+            
+            {isLoading ? (
+              <div className="py-12 flex flex-col items-center justify-center text-slate-500 font-mono">
+                <span className="material-symbols-outlined animate-spin text-4xl mb-4 text-[#00FF41]">autorenew</span>
+                <p>Sincronizando con el servidor...</p>
+              </div>
+            ) : myTracks.length === 0 ? (
+              <div className="py-12 text-center text-slate-500 font-mono border border-dashed border-[#00FF41]/20 rounded-xl bg-[#141416]">
+                <p>Aún no has guardado ninguna pista. ¡Ve al Live Editor y crea tu primer beat!</p>
+                <Link to="/editor" className="mt-4 inline-block bg-[#00FF41]/10 text-[#00FF41] px-4 py-2 rounded hover:bg-[#00FF41]/20 transition-colors uppercase font-bold text-xs tracking-widest">
+                  Abrir Live Editor
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {myTracks.map((track) => (
+                  <div key={track.id} className="bg-[#141416] border border-[#00FF41]/20 p-6 rounded-xl hover:border-[#00FF41]/60 transition-colors group flex flex-col">
+                    <div className="flex justify-between items-start mb-4">
+                      <h3 className="text-lg font-bold text-white font-['Space_Grotesk'] truncate pr-2 group-hover:text-[#00FF41] transition-colors">{track.title}</h3>
+                      <span className="bg-[#00FF41]/10 text-[#00FF41] text-[10px] font-mono px-2 py-1 rounded border border-[#00FF41]/20 whitespace-nowrap">BPM {track.bpm}</span>
+                    </div>
+                    <div className="bg-black/50 p-3 rounded border border-slate-800 h-20 overflow-hidden relative mb-6">
+                      <pre className="text-[10px] font-mono text-[#00FF41]/70 whitespace-pre-wrap">
+                        {track.strudel_code}
+                      </pre>
+                      <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#141416] to-transparent"></div>
+                    </div>
+                    <Link to={`/editor/${track.id}`} className="mt-auto flex items-center justify-center gap-2 w-full py-2 bg-slate-800/50 hover:bg-[#00FF41]/10 text-slate-300 hover:text-[#00FF41] rounded font-['Space_Grotesk'] text-xs font-bold uppercase transition-all border border-transparent hover:border-[#00FF41]/30">
+                      <span className="material-symbols-outlined text-sm">edit</span> Editar Pista
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
         </div>
       </main>
 

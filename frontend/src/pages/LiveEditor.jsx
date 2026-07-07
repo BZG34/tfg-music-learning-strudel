@@ -214,7 +214,23 @@ export default function LiveEditor() {
 
     const loadLessonOrProject = async () => {
       try {
-        const idToLoad = lessonId || "4"; // Si no hay ID en la URL, carga la 4
+        // ── SI NO HAY ID EN LA URL, ENCONTRAMOS EL MODO COMPOSICIÓN LIBRE ──
+        if (!lessonId) {
+          if (isCancelled) return;
+          setLesson({
+            isNewTrack: true, // Bandera lógica
+            number: "LIBRE",
+            title: "Nueva Composición",
+            hint: "",
+            objectives: []
+          });
+          const sandboxCode = `// ¡Estás creando tu propia música!\n// Experimenta libremente y mezcla tus capas rítmicas.\n\nstack(\n  s("bd*4"),\n  s("hh*8").gain(0.6),\n  s("~ cp").room(0.3)\n).slow(2);`;
+          setStarterCode(sandboxCode);
+          addLog('success', 'Entorno de composición libre listo.');
+          return; // Salimos de la función aquí, no hace falta consultar a la BD
+        }
+
+        const idToLoad = lessonId;
         addLog('system', `Buscando datos del ID ${idToLoad} en PostgreSQL...`);
 
         // 1. PRIMER INTENTO: Buscar como Lección
@@ -495,6 +511,17 @@ export default function LiveEditor() {
                       </p>
                       <p className="text-xs text-slate-500 mt-6 border-t border-[#00FF41]/10 pt-4">
                         Modifica los patrones a tu gusto. Al pulsar "Guardar pista", se publicará como un nuevo fork (versión) en la base de datos bajo tu usuario.
+                      </p>
+                    </div>
+                  ) : lesson.isNewTrack ? (
+                    <div className="mt-8 border border-[#00FF41]/20 p-6 bg-[#00FF41]/5 rounded-lg flex flex-col items-center text-center shadow-[0_0_15px_rgba(0,255,65,0.05)]">
+                      <span className="material-symbols-outlined text-[#00FF41] text-4xl mb-4">music_note</span>
+                      <h3 className="text-[#00FF41] font-bold font-['Space_Grotesk'] mb-2">Composición Libre</h3>
+                      <p className="text-sm font-body-md text-slate-300">
+                        ¡Estás creando tu propia música! Tienes un lienzo en blanco para experimentar con Live Coding.
+                      </p>
+                      <p className="text-xs text-slate-500 mt-6 border-t border-[#00FF41]/10 pt-4">
+                        Escribe tus algoritmos sonoros en el editor central. Cuando consigas un ritmo potente, pulsa "Guardar pista" para almacenarlo permanentemente en tu catálogo personal.
                       </p>
                     </div>
                   ) : (

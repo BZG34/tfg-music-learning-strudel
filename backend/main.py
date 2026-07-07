@@ -117,3 +117,10 @@ def read_project(project_id: int, db: Session = Depends(get_db)):
     if project is None:
         raise HTTPException(status_code=404, detail="Proyecto no encontrado")
     return project
+
+@app.get("/api/users/{user_id}/projects/", response_model=list[schemas.Project])
+def read_user_projects(user_id: int, db: Session = Depends(get_db)):
+    """
+    Devuelve la lista de proyectos personales para el Dashboard del alumno.
+    """
+    return crud.get_user_projects(db, user_id=user_id)
