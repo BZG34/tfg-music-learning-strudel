@@ -245,10 +245,12 @@ export default function LiveEditor() {
 
           // Actualiza el estado con los datos reales de la BD
           setLesson({
+            isProject: true, // <-- Bandera identificadora
             number: `P-${projectData.id}`,
             title: projectData.title,
-            hint: "// Estás remezclando un proyecto de la comunidad.",
-            objectives: [{ done: true, text: "Explora y modifica esta pista." }]
+            owner_id: projectData.owner_id, // <-- Guardamos el autor del proyecto
+            hint: "",
+            objectives: []
           });
           setBpm(projectData.bpm || 128);
           setStarterCode(projectData.strudel_code);
@@ -469,7 +471,7 @@ export default function LiveEditor() {
                     : 'text-slate-600 hover:text-slate-400'
                 }`}
               >
-                {tab === 'objectives' ? 'Lección' : 'Referencia'}
+                {tab === 'objectives' ? (lesson.isProject ? 'Proyecto' : 'Lección') : 'Referencia'}
               </button>
             ))}
           </div>
@@ -484,67 +486,72 @@ export default function LiveEditor() {
                   <h2 className="font-headline-md text-xl text-on-surface">{lesson.title}</h2>
                 </div>
                 <div className="space-y-6">
-                  <div className="prose prose-invert prose-sm">
-                    <p className="text-on-surface-variant font-body-md leading-relaxed">
-                      Explora el <span className="bg-primary-container/10 text-primary-container px-1 font-code-block">layering</span> de patrones. En Strudel, combinas señales con la función <code className="text-primary-container font-code-block">stack()</code>.
-                    </p>
-                    <p className="text-on-surface-variant font-body-md mt-4 leading-relaxed">
-                      Crea relaciones armónicas verticales permitiendo que tu lógica resuene por todo el espectro de frecuencias.
-                    </p>
-                  </div>
+                  {lesson.isProject ? (
+                    <div className="mt-8 border border-[#00FF41]/20 p-6 bg-[#00FF41]/5 rounded-lg flex flex-col items-center text-center shadow-[0_0_15px_rgba(0,255,65,0.05)]">
+                      <span className="material-symbols-outlined text-[#00FF41] text-4xl mb-4">public</span>
+                      <h3 className="text-[#00FF41] font-bold font-['Space_Grotesk'] mb-2">Remezcla Comunitaria</h3>
+                      <p className="text-sm font-body-md text-slate-300">
+                        Código original publicado por <span className="font-mono text-[#00FF41] bg-[#00FF41]/10 px-2 py-0.5 rounded">@usuario_{lesson.owner_id}</span> en la comunidad.
+                      </p>
+                      <p className="text-xs text-slate-500 mt-6 border-t border-[#00FF41]/10 pt-4">
+                        Modifica los patrones a tu gusto. Al pulsar "Guardar pista", se publicará como un nuevo fork (versión) en la base de datos bajo tu usuario.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="prose prose-invert prose-sm">
+                        <p className="text-on-surface-variant font-body-md leading-relaxed">
+                          Sigue las instrucciones de esta lección para dominar Strudel. Tu código inicial se ha cargado automáticamente desde el servidor.
+                        </p>
+                      </div>
 
-                  {/* Objectives */}
-                  <div className="space-y-3 mt-8">
-                    <h3 className="font-label-caps text-label-caps text-[#00FF41] uppercase tracking-widest border-b border-[#00FF41]/10 pb-2">
-                      Objetivos
-                    </h3>
-                    <ul className="space-y-4">
-                      {lesson.objectives.map((obj, i) => (
-                        <li key={i} className="flex items-start gap-3">
-                          <div className={`mt-1 flex-shrink-0 w-4 h-4 border flex items-center justify-center transition-colors ${
-                            obj.done ? 'border-[#00FF41] bg-[#00FF41]/10' : 'border-outline'
-                          }`}>
-                            {obj.done && (
-                              <span className="material-symbols-outlined text-[12px] text-[#00FF41]" style={{ fontVariationSettings: "'wght' 700" }}>check</span>
-                            )}
-                          </div>
-                          <span className={`text-sm font-body-md ${obj.done ? 'text-on-surface line-through opacity-60' : 'text-on-surface-variant'}`}>
-                            {obj.text}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                      {/* Objectives */}
+                      <div className="space-y-3 mt-8">
+                        <h3 className="font-label-caps text-label-caps text-[#00FF41] uppercase tracking-widest border-b border-[#00FF41]/10 pb-2">
+                          Objetivos
+                        </h3>
+                        <ul className="space-y-4">
+                          {lesson.objectives.map((obj, i) => (
+                            <li key={i} className="flex items-start gap-3">
+                              <div className={`mt-1 flex-shrink-0 w-4 h-4 border flex items-center justify-center transition-colors ${
+                                obj.done ? 'border-[#00FF41] bg-[#00FF41]/10' : 'border-outline'
+                              }`}>
+                                {obj.done && (
+                                  <span className="material-symbols-outlined text-[12px] text-[#00FF41]" style={{ fontVariationSettings: "'wght' 700" }}>check</span>
+                                )}
+                              </div>
+                              <span className={`text-sm font-body-md ${obj.done ? 'text-on-surface line-through opacity-60' : 'text-on-surface-variant'}`}>
+                                {obj.text}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
 
-                  {/* Snippet hint */}
-                  <div className="mt-6 bg-[#0A0A0B] border border-[#00FF41]/10 p-4 rounded">
-                    <p className="text-[10px] font-mono text-slate-500 uppercase mb-2 tracking-widest">Pista del editor</p>
-                    <pre className="text-xs font-mono text-primary-container leading-relaxed whitespace-pre-wrap">
-{`s("hh*8").gain("0.4 0.8")
-  .lpf(800)`}
-                    </pre>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (!cmViewRef.current) return;
-                        const view = cmViewRef.current;
-                        const snippet = '\n  s("hh*8").gain("0.4 0.8").lpf(800),';
-                        // Insert before closing paren of stack
-                        const code = view.state.doc.toString();
-                        const insertAt = code.lastIndexOf(')');
-                        if (insertAt !== -1) {
-                          view.dispatch({
-                            changes: { from: insertAt, insert: snippet },
-                          });
-                          addLog('info', 'Snippet insertado en el editor');
-                        }
-                      }}
-                      className="mt-3 text-[10px] font-mono text-[#00FF41] hover:text-[#00FF41]/70 flex items-center gap-1 transition-colors"
-                    >
-                      <span className="material-symbols-outlined text-sm">add</span>
-                      Insertar en editor
-                    </button>
-                  </div>
+                      {/* Snippet hint */}
+                      <div className="mt-6 bg-[#0A0A0B] border border-[#00FF41]/10 p-4 rounded">
+                        <p className="text-[10px] font-mono text-slate-500 uppercase mb-2 tracking-widest">Pista del editor</p>
+                        <pre className="text-xs font-mono text-primary-container leading-relaxed whitespace-pre-wrap">
+                          {lesson.hint || '// Sin pista disponible'}
+                        </pre>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!cmViewRef.current || !lesson.hint) return;
+                            const view = cmViewRef.current;
+                            view.dispatch({
+                              changes: { from: view.state.doc.length, insert: `\n${lesson.hint}` },
+                            });
+                            addLog('info', 'Snippet insertado en el editor');
+                          }}
+                          className="mt-3 text-[10px] font-mono text-[#00FF41] hover:text-[#00FF41]/70 flex items-center gap-1 transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-sm">add</span>
+                          Insertar en editor
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             ) : (
