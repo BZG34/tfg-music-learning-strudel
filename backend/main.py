@@ -39,6 +39,16 @@ def get_db():
 @app.on_event("startup")
 def seed_database():
     db = SessionLocal()
+
+    # 1. Crear usuario administrador por defecto (User ID 1)
+    if not crud.get_user_by_email(db, email="admin@uah.es"):
+        crud.create_user(db, schemas.UserCreate(
+            username="Borja_Admin",
+            email="admin@uah.es",
+            password="supersecreto"
+        ))
+
+    # 2. Crear lecciones
     if not crud.get_lesson_by_number(db, lesson_number="1"):
         crud.create_lesson(db, schemas.LessonCreate(
             lesson_number="1",
@@ -74,7 +84,7 @@ def db_check(db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error de conexión: {str(e)}")
 
-# --- NUEVOS ENDPOINTS DINÁMICOS ---
+# --- ENDPOINTS DINÁMICOS ---
 
 @app.get("/api/lessons/{lesson_number}", response_model=schemas.Lesson)
 def read_lesson(lesson_number: str, db: Session = Depends(get_db)):
@@ -93,3 +103,10 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 @app.post("/api/users/{user_id}/projects/", response_model=schemas.Project)
 def create_project_for_user(user_id: int, project: schemas.ProjectCreate, db: Session = Depends(get_db)):
     return crud.create_user_project(db=db, project=project, user_id=user_id)
+
+@app.get("/api/projects/", response_model=list[schemas.Project])
+def read_all_projects(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """
+    Devuelve todas las pistas de música guardadas en PostgreSQL para la Galería Comunitaria.
+    """
+    return crud.get_projects(db, skip=skip, limit=limit)

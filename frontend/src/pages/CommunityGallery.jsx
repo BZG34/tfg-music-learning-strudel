@@ -1,51 +1,29 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-const tracks = [
-	{
-		title: 'Systematic_Glitch.js',
-		user: '@synth_master',
-		genre: 'Techno',
-		tags: ['math.sin()', 'recursive'],
-		image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuATvX94sIFPDWe5j4KEa30uCneFDZNPW2A4kiqzcwtmvjkyzYZ_pkP1JN0Gj0xYJGYoVzV6EA-Di4kNIXeHc1rDelVfh1lSm3pNgvUPh6vCJusb8XAeuyUdjRfAZI4aUMlaqGffXp1isLZ2paG0P-8f8shoMLuMfcbTY7WW4P9AStRJIJSDX-wpkYIsvTnV0t21Gw-pv7NwXnewKnVzp7aSSp6iRqgQLyMNXrGAE7DNz_y13NWMi-KXPltssf6E6J2HQSJDM1bWTD4',
-	},
-	{
-		title: 'Neural_Tides.hex',
-		user: '@byte_weaver',
-		genre: 'Ambient',
-		tags: ['perlin_noise', 'low_pass'],
-		image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAJwUtxNGTQw55D6fx0WQYHYU3DPeIOmVIyYr7g0K9DY_SejNWy3nG3tBTSUUxZtFsUU3r4H337XRAbmv8mGzaXQNeJiRhsayXH7xSoRDHQ7ynHXvOnqEu83V5XKb6YHNNtWaEMsWljHBl-m_rRVoMHWF462wIB_sSO4RS-4B1jL4AiAMPfQWD9ROc5KWpuomHOfJZF156Dj6eWpRZ6lDCNdnTxN2_QyqkE-ZxpYx0nVag-7kALzO-bK6axk-dFTVYUB_1G0ZI3QfA',
-	},
-	{
-		title: 'Recursive_Loops.cpp',
-		user: '@algo_rhythm',
-		genre: 'Lo-Fi Logic',
-		tags: ['granular', 'intermediate'],
-		image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC4IYSTHlLMUrxvrgftgr5kbezG10m39SU8jHlaWPAj11LhaqafNqsv4JmjE3LVTGgnf98J7qdnSMeadR9TUVDwfsB30qLSN1-BddUouBkmhab7qzaa_B-Sh1MucU_PqzJZqknbQLNUOebde4uXO_hIb150G-dxm8Mhxi0yOvd7qcQJJFS_Q8YdOCbc2cPfrjtkrGBBRYk1ToODBtC5XVfsGFzTJs_Oq2pUF3EYzVRuv0z7GrZZBUdSMTn_W6iHavq0SZUG3M50DpE',
-	},
-	{
-		title: 'Obsidian_Sequence.exe',
-		user: '@void_null',
-		genre: 'Dark Synth',
-		tags: ['expert', 'fm_synthesis'],
-		image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBTp51m3hIMeg1BYpaZizGAGrBKNp8NcIDka3myxx113ZvR8TECb0rQH0QZE5lIXfglEpT6EigS3Qtwd8NG3v_cyqNZeItOJYcl1BZHimFbig2c4rXeqdHY8BOC659hQHfyd9wRwNoCLueCzpLv2y9Q3BnNMH0UhghtyggbxXHwvvbTbKocoaJi8Y-0MDczpKegPCIiHY_9PzvevPJgPSrg2XF_xttz0LoejiHdfMP5jpPKjHGnx63A7ZoGHyHmKnvVylqSeRlmk7A',
-	},
-	{
-		title: 'Bitwise_Ballad.wav',
-		user: '@logical_zero',
-		genre: 'Experimental',
-		tags: ['8-bit', 'beginner'],
-		image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAW22tU06YYfpuFvUzz9A0AujgnybqyfRQPIKS2sbytzwztR_UU73VISvjG9r67ui52bDmtRbUhPabRbAcmVUS2m6Xd9u3FQcx_is0npd5dBEp3KSx42twECy4QBCOVD49gYOe4Qu8emsnYs6OYgKQoOFc2fb5satkp1UM7cKw9jMWSO5T3-UWUsvS0Ao__qIQEtM2yBaLTvzcKckYpjqlwrg1yjFltg-p_2vuPJ8zF-2znrWUQTCEWPXV-ujdjfo4lhFdBAPINDps',
-	},
-	{
-		title: 'Infinity_Osc.json',
-		user: '@chaos_theory',
-		genre: 'Fractal',
-		tags: ['modulator', 'expert'],
-		image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD5SdSHRmp3oApeW15lKkKP1xyNCUhvk5rYIyJTKEbZUzbARvS4Q0Yi9ar5LDeWPUFYtL1thKqjxFUQGtvl--2Dl9zR-r6-hOndw6IQnHKL9urHHHjTVgBPeAHPqRod70znMtcJ4HYoeDcZcyUc54nfPM1Rw782U6tLfe6gXcQUlvmd6xewn_nxmvCQkd7-xTswP-NmbYyVf3SA4tNx4AYUxLhz1G-JOzl2Kh_K23boiOrQcJvbvdIVXfFgbr2frDOHM7ezvqvy48E',
-	},
-];
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+
 
 export default function CommunityGallery() {
+    const [tracks, setTracks] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchTracks = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/projects/`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                setTracks(data);
+            } catch (error) {
+                console.error("Error al cargar la galería:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchTracks();
+    }, []);
 	return (
 		<div className="page-community bg-[#0A0A0B] text-on-surface font-body-md selection:bg-primary-container selection:text-on-primary-container">
 			<header className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0B]/80 backdrop-blur-xl border-b border-[#00FF41]/20 shadow-[0_0_15px_rgba(0,255,65,0.1)]">
@@ -137,37 +115,49 @@ export default function CommunityGallery() {
 					</section>
 
 					<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter">
-						{tracks.map((track) => (
-							<article key={track.title} className="group bg-[#141416] border border-[#00FF41]/10 rounded-xl overflow-hidden glow-hover transition-all duration-300 flex flex-col h-full">
-								<div className="h-40 bg-[#0A0A0B] relative overflow-hidden waveform-thumb">
-									<img alt="Waveform visualizer" className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500" src={track.image} />
-									<div className="absolute inset-0 bg-gradient-to-t from-[#141416] to-transparent"></div>
-									<div className="absolute top-3 left-3 px-2 py-1 bg-[#00FF41]/20 backdrop-blur-md rounded border border-[#00FF41]/30">
-										<span className="text-[10px] font-mono text-[#00FF41] uppercase tracking-widest">{track.genre}</span>
-									</div>
-								</div>
-								<div className="p-6 flex-grow">
-									<h3 className="font-headline-md text-xl text-on-surface mb-1 group-hover:text-[#00FF41] transition-colors">{track.title}</h3>
-									<div className="flex items-center gap-2 mb-4">
-										<div className="w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center"><span className="material-symbols-outlined text-[12px]">person</span></div>
-										<span className="text-sm text-slate-500">{track.user}</span>
-									</div>
-									<div className="flex flex-wrap gap-2 mb-6">
-										{track.tags.map((tag) => (
-											<span key={tag} className="px-2 py-0.5 bg-[#00FF41]/5 text-[#00FF41] font-mono text-[10px] rounded border border-[#00FF41]/10">{tag}</span>
-										))}
-									</div>
-									<div className="grid grid-cols-2 gap-3 mt-auto">
-										<button type="button" className="flex items-center justify-center gap-2 py-3 bg-[#00FF41]/10 border border-[#00FF41]/20 text-[#00FF41] rounded font-['Space_Grotesk'] text-sm font-bold uppercase hover:bg-[#00FF41] hover:text-[#003907] transition-all">
-											<span className="material-symbols-outlined text-lg">play_arrow</span> Listen
-										</button>
-										<button type="button" className="flex items-center justify-center gap-2 py-3 bg-slate-800/50 border border-slate-700 text-slate-300 rounded font-['Space_Grotesk'] text-sm font-bold uppercase hover:bg-slate-700 transition-all">
-											<span className="material-symbols-outlined text-lg">code</span> View Code
-										</button>
-									</div>
-								</div>
-							</article>
-						))}
+                        {isLoading ? (
+                            <div className="col-span-full py-12 flex flex-col items-center justify-center text-slate-500 font-mono">
+                                <span className="material-symbols-outlined animate-spin text-4xl mb-4 text-[#00FF41]">autorenew</span>
+                                <p>Descargando secuencias de la red...</p>
+                            </div>
+                        ) : tracks.length === 0 ? (
+                            <div className="col-span-full py-12 text-center text-slate-500 font-mono border border-dashed border-[#00FF41]/20 rounded-xl">
+                                <p>No hay pistas en la comunidad todavía. ¡Sé el primero en publicar desde el Live Editor!</p>
+                            </div>
+                        ) : (
+                            tracks.map((track) => (
+                                <article key={track.id} className="group bg-[#141416] border border-[#00FF41]/10 rounded-xl overflow-hidden glow-hover transition-all duration-300 flex flex-col h-full">
+                                    <div className="h-40 bg-[#0A0A0B] relative overflow-hidden waveform-thumb flex items-center justify-center border-b border-[#00FF41]/10">
+                                        <div className="absolute inset-0 bg-gradient-to-t from-[#141416] to-transparent z-10"></div>
+                                        <span className="material-symbols-outlined text-6xl text-[#00FF41]/20 group-hover:scale-110 transition-transform duration-500">graphic_eq</span>
+                                        <div className="absolute top-3 left-3 px-2 py-1 bg-[#00FF41]/20 backdrop-blur-md rounded border border-[#00FF41]/30 z-20">
+                                            <span className="text-[10px] font-mono text-[#00FF41] uppercase tracking-widest">BPM: {track.bpm}</span>
+                                        </div>
+                                    </div>
+                                    <div className="p-6 flex-grow flex flex-col">
+                                        <h3 className="font-headline-md text-xl text-on-surface mb-1 group-hover:text-[#00FF41] transition-colors line-clamp-1">{track.title}</h3>
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <div className="w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center"><span className="material-symbols-outlined text-[12px]">person</span></div>
+                                            <span className="text-sm text-slate-500">@usuario_{track.owner_id}</span>
+                                        </div>
+                                        
+                                        {/* Preview del código Strudel guardado en vez de tags */}
+                                        <div className="mb-6 bg-black/50 p-3 rounded border border-slate-800 h-20 overflow-hidden relative">
+                                            <pre className="text-[10px] font-mono text-[#00FF41]/70 whitespace-pre-wrap">
+                                                {track.strudel_code}
+                                            </pre>
+                                            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#141416] to-transparent"></div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 gap-3 mt-auto">
+                                            <Link to={`/editor/${track.id}`} className="flex items-center justify-center gap-2 py-3 bg-[#00FF41]/10 border border-[#00FF41]/20 text-[#00FF41] rounded font-['Space_Grotesk'] text-sm font-bold uppercase hover:bg-[#00FF41] hover:text-[#003907] transition-all">
+                                                <span className="material-symbols-outlined text-lg">play_arrow</span> Remix / Escuchar
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </article>
+                            ))
+                        )}
 
 						<div className="group bg-[#141416] border border-[#00FF41]/10 rounded-xl overflow-hidden glow-hover transition-all duration-300 flex flex-col h-full">
 							<div className="h-40 bg-[#0A0A0B] relative overflow-hidden waveform-thumb">
