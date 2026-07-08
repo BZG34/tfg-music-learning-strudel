@@ -446,10 +446,10 @@ export default function LiveEditor() {
         <div className="flex items-center gap-8">
           <Link to="/" className="text-2xl font-black text-[#00FF41] tracking-widest font-['Space_Grotesk'] uppercase">PAMS</Link>
           <nav className="hidden md:flex gap-6 items-center font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-sm">
-            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/dashboard">Dashboard</Link>
-            <Link className="text-[#00FF41] border-b-2 border-[#00FF41] pb-1" to="/editor">Live Editor</Link>
-            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/gallery">Gallery</Link>
-            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/">Lessons</Link>
+            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/dashboard">Panel</Link>
+            <Link className="text-[#00FF41] border-b-2 border-[#00FF41] pb-1" to={`/editor/${lesson.number}`}>Editor</Link>
+            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/gallery">Comunidad</Link>
+            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/">Lecciones</Link>
           </nav>
         </div>
         <div className="flex items-center gap-4">

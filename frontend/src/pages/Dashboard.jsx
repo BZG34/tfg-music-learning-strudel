@@ -37,10 +37,10 @@ export default function Dashboard() {
           <div className="flex items-center gap-8">
             <Link to="/" className="text-2xl font-black text-[#00FF41] tracking-widest font-['Space_Grotesk'] uppercase">PAMS</Link>
             <nav className="hidden md:flex gap-6 items-center">
-              <Link className="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-[#00FF41] border-b-2 border-[#00FF41] pb-1" to="/dashboard">Dashboard</Link>
-              <Link className="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-slate-500 hover:text-slate-300 transition-colors" to="/editor">Live Editor</Link>
-              <Link className="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-slate-500 hover:text-slate-300 transition-colors" to="/gallery">Gallery</Link>
-              <span className="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-slate-500 opacity-40 cursor-not-allowed">Lessons</span>
+              <Link className="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-[#00FF41] border-b-2 border-[#00FF41] pb-1" to="/dashboard">Panel</Link>
+              <Link className="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-slate-500 hover:text-slate-300 transition-colors" to="/editor">Editor</Link>
+              <Link className="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-slate-500 hover:text-slate-300 transition-colors" to="/gallery">Comunidad</Link>
+              <Link className="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-slate-500 hover:text-slate-300 transition-colors" to="/">Lecciones</Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">
@@ -67,20 +67,20 @@ export default function Dashboard() {
         </div>
         <nav className="flex-1 px-2 space-y-1 font-['Space_Grotesk'] text-sm">
           <Link className="bg-[#00FF41]/10 text-[#00FF41] border-l-4 border-[#00FF41] shadow-[0_0_10px_rgba(0,255,65,0.2)] py-3 px-4 flex items-center gap-3 active:translate-x-1 duration-200" to="/dashboard">
-            <span className="material-symbols-outlined">grid_view</span> Home
+            <span className="material-symbols-outlined">grid_view</span> Panel
           </Link>
-          <span className="text-slate-600 py-3 px-4 flex items-center gap-3 opacity-40 cursor-not-allowed">
-            <span className="material-symbols-outlined">folder_open</span> Projects
-          </span>
+          <Link className="text-slate-500 py-3 px-4 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" to="/">
+            <span className="material-symbols-outlined">school</span> Lecciones
+          </Link>
           <Link className="text-slate-500 py-3 px-4 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" to="/editor">
-            <span className="material-symbols-outlined">graphic_eq</span> Sequencer
+            <span className="material-symbols-outlined">graphic_eq</span> Editor
           </Link>
           <Link className="text-slate-500 py-3 px-4 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" to="/gallery">
-            <span className="material-symbols-outlined">forum</span> Community
+            <span className="material-symbols-outlined">forum</span> Comunidad
           </Link>
         </nav>
         <div className="mt-auto p-4 space-y-4 font-['Space_Grotesk']">
-          <Link to="/editor" className="w-full block text-center bg-[#00FF41] text-[#003907] font-bold py-2 rounded uppercase text-xs tracking-widest hover:brightness-110 active:scale-95 transition-all">New Track</Link>
+          <Link to="/editor" className="w-full block text-center bg-[#00FF41] text-[#003907] font-bold py-2 rounded uppercase text-xs tracking-widest hover:brightness-110 active:scale-95 transition-all">Nueva Pista</Link>
           <div className="border-t border-[#00FF41]/10 pt-4">
             <a className="text-slate-600 hover:text-[#00FF41] transition-colors py-2 flex items-center gap-3 text-xs uppercase" href="#docs">
               <span className="material-symbols-outlined text-sm">menu_book</span> Documentation

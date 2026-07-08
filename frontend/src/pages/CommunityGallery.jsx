@@ -30,11 +30,11 @@ export default function CommunityGallery() {
 				<div className="flex justify-between items-center w-full px-6 py-4 max-w-[1920px] mx-auto">
 					<div className="text-2xl font-black text-[#00FF41] tracking-widest font-['Space_Grotesk'] uppercase">PAMS</div>
 					<nav className="hidden md:flex items-center gap-8 font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-sm">
-						<Link className="text-slate-500 hover:text-slate-300 transition-colors active:scale-95" to="/dashboard">Dashboard</Link>
-						<Link className="text-slate-500 hover:text-slate-300 transition-colors active:scale-95" to="/editor">Live Editor</Link>
-						<Link className="text-[#00FF41] border-b-2 border-[#00FF41] pb-1 active:scale-95" to="/gallery">Gallery</Link>
-						<Link className="text-slate-500 hover:text-slate-300 transition-colors active:scale-95" to="/">Lessons</Link>
-					</nav>
+                        <Link className="text-slate-500 hover:text-slate-300 transition-colors active:scale-95" to="/dashboard">Panel</Link>
+                        <Link className="text-slate-500 hover:text-slate-300 transition-colors active:scale-95" to="/editor">Editor</Link>
+                        <Link className="text-[#00FF41] border-b-2 border-[#00FF41] pb-1 active:scale-95" to="/gallery">Comunidad</Link>
+                        <Link className="text-slate-500 hover:text-slate-300 transition-colors active:scale-95" to="/">Lecciones</Link>
+                    </nav>
 					<div className="flex items-center gap-4">
 						<button type="button" className="p-2 text-[#00FF41] hover:bg-[#00FF41]/5 transition-all duration-300 active:scale-95 cursor-pointer"><span className="material-symbols-outlined">terminal</span></button>
 						<button type="button" className="p-2 text-[#00FF41] hover:bg-[#00FF41]/5 transition-all duration-300 active:scale-95 cursor-pointer"><span className="material-symbols-outlined">notifications</span></button>
@@ -56,16 +56,16 @@ export default function CommunityGallery() {
 					</div>
 				</div>
 				<nav className="flex-1 font-['Space_Grotesk'] text-sm monospaced">
-					<Link className="text-slate-500 py-3 px-6 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" to="/dashboard"><span className="material-symbols-outlined">grid_view</span> Home</Link>
-					<Link className="text-slate-500 py-3 px-6 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" to="/">Projects</Link>
-					<Link className="text-slate-500 py-3 px-6 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" to="/editor"><span className="material-symbols-outlined">graphic_eq</span> Sequencer</Link>
-					<Link className="bg-[#00FF41]/10 text-[#00FF41] border-l-4 border-[#00FF41] py-3 px-6 flex items-center gap-3 shadow-[0_0_10px_rgba(0,255,65,0.2)] active:translate-x-1 duration-200" to="/gallery"><span className="material-symbols-outlined">forum</span> Community</Link>
-					<Link className="text-slate-500 py-3 px-6 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" to="/"><span className="material-symbols-outlined">settings</span> Settings</Link>
-				</nav>
-				<div className="p-6 mt-auto border-t border-[#00FF41]/10">
-					<button type="button" className="w-full py-3 bg-[#00FF41] text-[#003907] font-bold uppercase tracking-tighter text-sm rounded hover:brightness-110 transition-all flex items-center justify-center gap-2">
-						<span className="material-symbols-outlined text-sm">add</span> New Track
-					</button>
+                    <Link className="text-slate-500 py-3 px-6 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" to="/dashboard"><span className="material-symbols-outlined">grid_view</span> Panel</Link>
+                    <Link className="text-slate-500 py-3 px-6 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" to="/"><span className="material-symbols-outlined">school</span> Lecciones</Link>
+                    <Link className="text-slate-500 py-3 px-6 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" to="/editor"><span className="material-symbols-outlined">graphic_eq</span> Editor</Link>
+                    <Link className="bg-[#00FF41]/10 text-[#00FF41] border-l-4 border-[#00FF41] py-3 px-6 flex items-center gap-3 shadow-[0_0_10px_rgba(0,255,65,0.2)] active:translate-x-1 duration-200" to="/gallery"><span className="material-symbols-outlined">forum</span> Comunidad</Link>
+                    <Link className="text-slate-500 py-3 px-6 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" to="/"><span className="material-symbols-outlined">settings</span> Ajustes</Link>
+                </nav>
+                <div className="p-6 mt-auto border-t border-[#00FF41]/10">
+                    <Link to="/editor" className="w-full py-3 bg-[#00FF41] text-[#003907] font-bold uppercase tracking-tighter text-sm rounded hover:brightness-110 transition-all flex items-center justify-center gap-2">
+                        <span className="material-symbols-outlined text-sm">add</span> Nueva Pista
+                    </Link>
 					<div className="mt-6 flex flex-col gap-3 font-['Space_Grotesk'] text-xs opacity-60">
 						<a className="flex items-center gap-2 hover:text-[#00FF41] transition-colors" href="#"><span className="material-symbols-outlined text-base">menu_book</span> Documentation</a>
 						<a className="flex items-center gap-2 hover:text-[#00FF41] transition-colors" href="#"><span className="material-symbols-outlined text-base">developer_board</span> System Status</a>
