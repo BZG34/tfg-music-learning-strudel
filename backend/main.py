@@ -48,19 +48,40 @@ def seed_database():
             password="supersecreto"
         ))
 
-    # 2. Crear lecciones
-    if not crud.get_lesson_by_number(db, lesson_number="1"):
-        crud.create_lesson(db, schemas.LessonCreate(
+    # 2. Plan de Estudios Pedagógico de Música y Código
+    curriculum = [
+        schemas.LessonCreate(
             lesson_number="1",
-            title="Your First Beat",
-            hint_code='s("bd*4")'
-        ))
-    if not crud.get_lesson_by_number(db, lesson_number="4"):
-        crud.create_lesson(db, schemas.LessonCreate(
+            title="El Pulso Fundamental",
+            hint_code='// Lección 1: El bombo (bd) marca el pulso en 4/4\ns("bd*4")'
+        ),
+        schemas.LessonCreate(
+            lesson_number="2",
+            title="Subdivisiones Binarias",
+            hint_code='// Lección 2: Los corchetes [] dividen el tiempo en dos corcheas\ns("bd [hh hh] sd hh")'
+        ),
+        schemas.LessonCreate(
+            lesson_number="3",
+            title="Ritmos Euclidianos",
+            hint_code='// Lección 3: Distribuye x pulsos en y espacios geométricos\ns("bd(3,8)")'
+        ),
+        schemas.LessonCreate(
             lesson_number="4",
-            title="Polyphonic Cycles",
-            hint_code='s("hh*8").gain("0.4 0.8").lpf(800)'
-        ))
+            title="Ciclos Polifónicos",
+            hint_code='// Lección 4: stack() combina capas rítmicas en paralelo\nstack(\n  s("bd*4"),\n  s("hh*8").gain(0.5),\n  s("~ sd").room(0.4)\n).slow(2)'
+        ),
+        schemas.LessonCreate(
+            lesson_number="5",
+            title="Melodía Algorítmica",
+            hint_code='// Lección 5: n() define notas musicales y s() el sintetizador\nn("c3 e3 g3 b3 c4").s("saw").lpf(1000)'
+        )
+    ]
+
+    # Inyectar lecciones si la tabla está vacía
+    for lesson_data in curriculum:
+        if not crud.get_lesson_by_number(db, lesson_number=lesson_data.lesson_number):
+            crud.create_lesson(db, lesson_data)
+
     db.close()
 
 # --- ENDPOINTS ORIGINALES ---
@@ -124,3 +145,8 @@ def read_user_projects(user_id: int, db: Session = Depends(get_db)):
     Devuelve la lista de proyectos personales para el Dashboard del alumno.
     """
     return crud.get_user_projects(db, user_id=user_id)
+
+@app.get("/api/lessons/", response_model=list[schemas.Lesson])
+def read_all_lessons(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """Devuelve la lista completa de lecciones del plan de estudios."""
+    return crud.get_lessons(db, skip=skip, limit=limit)

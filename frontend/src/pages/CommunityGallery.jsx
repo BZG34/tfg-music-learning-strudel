@@ -33,7 +33,7 @@ export default function CommunityGallery() {
                         <Link className="text-slate-500 hover:text-slate-300 transition-colors active:scale-95" to="/dashboard">Panel</Link>
                         <Link className="text-slate-500 hover:text-slate-300 transition-colors active:scale-95" to="/editor">Editor</Link>
                         <Link className="text-[#00FF41] border-b-2 border-[#00FF41] pb-1 active:scale-95" to="/gallery">Comunidad</Link>
-                        <Link className="text-slate-500 hover:text-slate-300 transition-colors active:scale-95" to="/">Lecciones</Link>
+                        <Link className="text-slate-500 hover:text-slate-300 transition-colors active:scale-95" to="/lessons">Lecciones</Link>
                     </nav>
 					<div className="flex items-center gap-4">
 						<button type="button" className="p-2 text-[#00FF41] hover:bg-[#00FF41]/5 transition-all duration-300 active:scale-95 cursor-pointer"><span className="material-symbols-outlined">terminal</span></button>

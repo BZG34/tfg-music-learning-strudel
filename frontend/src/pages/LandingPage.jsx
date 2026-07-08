@@ -10,7 +10,7 @@ export default function LandingPage() {
             <Link className="text-[#00FF41] border-b-2 border-[#00FF41] pb-1" to="/">Inicio</Link>
             <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/editor">Editor en vivo</Link>
             <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/gallery">Galería</Link>
-            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/dashboard">Lecciones</Link>
+            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/lessons">Lecciones</Link>
           </div>
           <div className="flex items-center gap-4">
             <button type="button" aria-label="Terminal" className="material-symbols-outlined text-[#00FF41] hover:bg-[#00FF41]/5 p-2 rounded transition-all active:scale-95">terminal</button>

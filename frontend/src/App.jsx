@@ -5,6 +5,7 @@ import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import LiveEditor from './pages/LiveEditor';
 import CommunityGallery from './pages/CommunityGallery';
+import Lessons from './pages/Lessons';
 
 function App() {
   return (
@@ -22,6 +23,9 @@ function App() {
         
         {/* Ruta de la Galería de la Comunidad */}
         <Route path="/gallery" element={<CommunityGallery />} />
+        
+        {/* Ruta de las Lecciones */}
+        <Route path="/lessons" element={<Lessons />} />
       </Routes>
     </Router>
   );

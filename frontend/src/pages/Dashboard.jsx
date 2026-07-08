@@ -40,7 +40,7 @@ export default function Dashboard() {
               <Link className="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-[#00FF41] border-b-2 border-[#00FF41] pb-1" to="/dashboard">Panel</Link>
               <Link className="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-slate-500 hover:text-slate-300 transition-colors" to="/editor">Editor</Link>
               <Link className="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-slate-500 hover:text-slate-300 transition-colors" to="/gallery">Comunidad</Link>
-              <Link className="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-slate-500 hover:text-slate-300 transition-colors" to="/">Lecciones</Link>
+              <Link className="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-slate-500 hover:text-slate-300 transition-colors" to="/lessons">Lecciones</Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">
