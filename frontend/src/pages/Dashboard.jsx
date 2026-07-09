@@ -51,7 +51,10 @@ export default function Dashboard() {
 
           {/* DERECHA: Iconos y Perfil */}
           <div className="flex-1 flex items-center justify-end gap-4">
+            {/*
             <button type="button" aria-label="Terminal" className="material-symbols-outlined text-[#00FF41] hover:bg-[#00FF41]/5 p-2 rounded transition-all active:scale-95">terminal</button>
+            */}
+            <Link to="/editor" className="bg-[#00FF41] text-[#003907] font-bold py-1.5 px-4 rounded uppercase text-[10px] tracking-widest hover:brightness-110 active:scale-95 transition-all whitespace-nowrap">Nueva Pista</Link>
             <button type="button" aria-label="Notifications" className="material-symbols-outlined text-[#00FF41] hover:bg-[#00FF41]/5 p-2 rounded transition-all active:scale-95">notifications</button>
             <div className="w-8 h-8 rounded-full border border-[#00FF41]/30 overflow-hidden flex-shrink-0">
               <img alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrwr2NOkbueflO9JZhP7HCLdgrd0O-jDMGaCUf5HLfwPwcnn5toY3w7B8ABtj7YHePaFaIt4VamW79iS7UMHCwtjRQEttszG25C36uTjGiZL_Ho33F272VBdvbm0DsZ28y5rfbpbAUQTyajY3bo2spV9L56V5kpXu3cy0jHMLdf8MUSbBQAzhvr9qAl8M2-c_Kqs1wsTLyxv5jWHu9G88lrwRQUd6cEAAT3HH8DCPZxNIMSkQSUdPPjoBAMtpvryqOtnAsJf5-yIo" />
@@ -60,6 +63,7 @@ export default function Dashboard() {
         </nav>
       </header>
 
+      {/*
       <aside className="fixed left-0 top-0 h-full flex flex-col z-40 bg-[#141416] border-r border-[#00FF41]/10 w-64 pt-20">
         <div className="p-6 border-b border-[#00FF41]/10 mb-4">
           <div className="flex items-center gap-3">
@@ -98,6 +102,7 @@ export default function Dashboard() {
           </div>
         </div>
       </aside>
+      */}
 
       <main className="ml-64 pt-24 px-8 pb-12">
         <div className="max-w-6xl mx-auto space-y-8">
