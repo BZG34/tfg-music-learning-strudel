@@ -441,32 +441,40 @@ export default function LiveEditor() {
   return (
     <div className="page-live-editor bg-[#0A0A0B] text-on-surface font-body-md overflow-hidden h-screen flex flex-col selection:bg-primary-container/30 selection:text-primary-container">
 
-      {/* ── HEADER ─────────────────────────────────────────────────────────── */}
-      <header className="bg-[#0A0A0B]/80 backdrop-blur-xl border-b border-[#00FF41]/20 shadow-[0_0_15px_rgba(0,255,65,0.1)] flex justify-between items-center w-full px-6 py-3 z-50 flex-shrink-0">
-        <div className="flex items-center gap-8">
-          <Link to="/" className="text-2xl font-black text-[#00FF41] tracking-widest font-['Space_Grotesk'] uppercase">PAMS</Link>
-          <nav className="hidden md:flex gap-6 items-center font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-sm">
+      {/* HEADER DEL EDITOR EN VIVO */}
+      <header className="bg-[#0A0A0B]/80 backdrop-blur-xl border-b border-[#00FF41]/20 shadow-[0_0_15px_rgba(0,255,65,0.1)] w-full flex-shrink-0 z-50">
+        <nav className="flex items-center w-full px-6 py-3 max-w-[1920px] mx-auto">
+          {/* IZQUIERDA: Logo */}
+          <div className="flex-1 flex items-center">
+            <Link to="/" className="text-2xl font-black text-[#00FF41] tracking-widest font-['Space_Grotesk'] uppercase">PAMS</Link>
+          </div>
+
+          {/* CENTRO: Barra de navegación centrada */}
+          <div className="flex-1 hidden lg:flex items-center justify-center gap-8 font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-sm">
+            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/">Inicio</Link>
             <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/dashboard">Panel</Link>
-            <Link className="text-[#00FF41] border-b-2 border-[#00FF41] pb-1" to={`/editor/${lesson.number}`}>Editor</Link>
-            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/gallery">Comunidad</Link>
+            <Link className="text-[#00FF41] border-b-2 border-[#00FF41] pb-1" to="/editor">Editor en vivo</Link>
+            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/gallery">Galería</Link>
             <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/lessons">Lecciones</Link>
-          </nav>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center bg-surface-container-low border border-outline-variant/30 px-3 py-1.5 rounded-lg">
-            <span className="material-symbols-outlined text-primary-container mr-2 text-sm">terminal</span>
-            <span className="font-code-block text-code-block text-on-surface-variant">res_kernel_v1.0.4</span>
           </div>
-          {/* Keyboard shortcuts hint */}
-          <div className="hidden lg:flex items-center gap-1 text-[10px] font-mono text-slate-600">
-            <kbd className="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-500">Ctrl</kbd>
-            <span>+</span>
-            <kbd className="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-500">Enter</kbd>
-            <span className="ml-1">evaluar</span>
+
+          {/* DERECHA: Widgets del editor y Perfil */}
+          <div className="flex-1 flex items-center justify-end gap-4">
+            <div className="hidden xl:flex items-center bg-[#141416] border border-[#00FF41]/20 px-3 py-1.5 rounded-lg">
+              <span className="material-symbols-outlined text-[#00FF41] mr-2 text-sm">terminal</span>
+              <span className="font-mono text-slate-400 text-xs">res_kernel_v1.0.4</span>
+            </div>
+            <div className="hidden 2xl:flex items-center gap-1 text-[10px] font-mono text-slate-600">
+              <kbd className="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-500">Ctrl</kbd>
+              <span>+</span>
+              <kbd className="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-500">Enter</kbd>
+            </div>
+            <button type="button" aria-label="Notifications" className="material-symbols-outlined text-[#00FF41] hover:bg-[#00FF41]/5 p-2 rounded transition-all active:scale-95">notifications</button>
+            <div className="w-8 h-8 rounded-full border border-[#00FF41]/30 overflow-hidden flex-shrink-0">
+              <img alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrwr2NOkbueflO9JZhP7HCLdgrd0O-jDMGaCUf5HLfwPwcnn5toY3w7B8ABtj7YHePaFaIt4VamW79iS7UMHCwtjRQEttszG25C36uTjGiZL_Ho33F272VBdvbm0DsZ28y5rfbpbAUQTyajY3bo2spV9L56V5kpXu3cy0jHMLdf8MUSbBQAzhvr9qAl8M2-c_Kqs1wsTLyxv5jWHu9G88lrwRQUd6cEAAT3HH8DCPZxNIMSkQSUdPPjoBAMtpvryqOtnAsJf5-yIo" />
+            </div>
           </div>
-          <button type="button" className="material-symbols-outlined text-slate-500 hover:bg-[#00FF41]/5 transition-all p-2 rounded active:scale-95 cursor-pointer">notifications</button>
-          <img alt="User profile avatar" className="w-8 h-8 rounded-full border border-[#00FF41]/40" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80" />
-        </div>
+        </nav>
       </header>
 
       {/* ── BODY ───────────────────────────────────────────────────────────── */}
@@ -795,15 +803,23 @@ export default function LiveEditor() {
         </section>
       </div>
 
-      {/* ── FOOTER ─────────────────────────────────────────────────────────── */}
-      <footer className="bg-[#0A0A0B] border-t border-[#00FF41]/10 w-full py-3 px-6 flex justify-between items-center z-50 flex-shrink-0">
-        <div className="flex items-center gap-6">
-          <span className="font-['Space_Grotesk'] text-xs opacity-60 text-slate-500 font-bold text-[#00FF41]">
-            © 2026 <strong>PAMS</strong>. Código abierto —{' '}
-            <strong><a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener noreferrer">AGPL-3.0</a></strong>{' '}·{' '}
-            <strong><a href="https://github.com/BZG34/tfg-music-learning-strudel" target="_blank" rel="noopener noreferrer">Código Fuente</a></strong>
-          </span>
+      {/* FOOTER UNIVERSAL */}
+      <footer className="w-full py-8 px-6 lg:px-12 flex flex-col xl:flex-row justify-between items-center border-t border-[#00FF41]/10 bg-[#0A0A0B] relative z-40 mt-auto flex-shrink-0">
+        <div className="font-['Space_Grotesk'] font-bold text-[#00FF41] text-lg mb-6 xl:mb-0 text-center xl:text-left">
+          PAMS <span className="opacity-50 font-normal ml-2 block sm:inline-block mt-1 sm:mt-0">// ¿Quién dijo que programar no es divertido?</span>
         </div>
+        
+        <div className="flex flex-wrap justify-center gap-6 md:gap-8 font-['Space_Grotesk'] text-xs uppercase tracking-widest text-slate-600 mb-6 xl:mb-0">
+          <a className="hover:text-[#00FF41] transition-colors" href="https://strudel.tidalcycles.org/tutorial/" target="_blank" rel="noopener noreferrer">Documentación</a>
+          <a className="hover:text-[#00FF41] transition-colors" href="https://github.com/BZG34/tfg-music-learning-strudel" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <Link className="hover:text-[#00FF41] transition-colors" to="/">Privacidad</Link>
+          <Link className="hover:text-[#00FF41] transition-colors" to="/">Términos</Link>
+        </div>
+        
+        <div className="font-['Space_Grotesk'] text-xs opacity-60 text-slate-500 font-bold text-[#00FF41] text-center xl:text-right">
+          © 2026 <strong>PAMS</strong>. Código abierto bajo licencia <strong><a className="hover:underline" href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener noreferrer">AGPL-3.0</a></strong>. Ver <strong><a className="hover:underline" href="https://github.com/BZG34/tfg-music-learning-strudel" target="_blank" rel="noopener noreferrer">Código Fuente</a></strong>.
+        </div>
+        {/* FOOTER EXTENDIDO */}
         <div className="flex items-center gap-3">
           <div className={`px-3 py-1 rounded border flex items-center gap-2 transition-colors ${
             isPlaying
