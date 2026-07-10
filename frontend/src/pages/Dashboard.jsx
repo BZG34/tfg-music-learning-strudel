@@ -6,7 +6,7 @@ import Header from '../components/Header'; // Importamos el Header genérico
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function Dashboard() {
-  const { user } = useAuth(); // Extraemos el usuario real logueado
+  const { user, token } = useAuth(); // Extraemos el usuario real logueado y el token
   
   // Si el usuario existe usamos su alias, si no, ponemos 'Invitado' por seguridad
   const studentName = user?.username || 'Invitado';
@@ -34,6 +34,28 @@ export default function Dashboard() {
     };
     fetchMyTracks();
   }, [user]); // Se ejecuta cada vez que el usuario cambie o se loguee
+
+  // ── Función para borrar una pista ──
+  const handleDeleteTrack = async (projectId) => {
+    // Pedimos confirmación al usuario (súper importante para evitar accidentes)
+    if (!window.confirm("¿Estás seguro de que quieres borrar esta pista para siempre?")) return;
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` } // Usamos la variable token correcta
+      });
+
+      if (response.ok) {
+        // Actualizamos la lista local borrando la tarjeta al instante sin recargar la web
+        setMyTracks(prevTracks => prevTracks.filter(track => track.id !== projectId));
+      } else {
+        alert("Error al intentar borrar la pista.");
+      }
+    } catch (error) {
+      console.error("Fallo de red:", error);
+    }
+  };
 
   return (
     <div className="page-dashboard bg-[#0A0A0B] text-on-background font-body-md min-h-screen selection:bg-primary-container/30 selection:text-primary-container">
@@ -201,9 +223,18 @@ export default function Dashboard() {
                       </pre>
                       <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#141416] to-transparent"></div>
                     </div>
-                    <Link to={`/editor/${track.id}`} className="mt-auto flex items-center justify-center gap-2 w-full py-2 bg-slate-800/50 hover:bg-[#00FF41]/10 text-slate-300 hover:text-[#00FF41] rounded font-['Space_Grotesk'] text-xs font-bold uppercase transition-all border border-transparent hover:border-[#00FF41]/30">
-                      <span className="material-symbols-outlined text-sm">edit</span> Editar Pista
-                    </Link>
+                    <div className="mt-auto flex gap-2 w-full">
+                      <Link to={`/editor/${track.id}`} className="flex-1 flex items-center justify-center gap-2 py-2 bg-slate-800/50 hover:bg-[#00FF41]/10 text-slate-300 hover:text-[#00FF41] rounded font-['Space_Grotesk'] text-xs font-bold uppercase transition-all border border-transparent hover:border-[#00FF41]/30">
+                        <span className="material-symbols-outlined text-sm">edit</span> Editar Pista
+                      </Link>
+                      <button 
+                        onClick={() => handleDeleteTrack(track.id)}
+                        title="Borrar Pista"
+                        className="w-10 flex items-center justify-center bg-slate-800/50 hover:bg-red-500/10 text-slate-500 hover:text-red-400 rounded transition-all border border-transparent hover:border-red-500/30"
+                      >
+                        <span className="material-symbols-outlined text-sm">delete</span>
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

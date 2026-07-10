@@ -37,12 +37,30 @@ def get_db():
     finally:
         db.close()
 
-# 5. POBLADO INICIAL (Seeding): Inyectar lecciones base al arrancar
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    """Desencripta el Token JWT para descubrir qué usuario está haciendo la petición."""
+    try:
+        payload = security.jwt.decode(token, security.SECRET_KEY, algorithms=[security.ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Credenciales inválidas")
+    except security.JWTError:
+        raise HTTPException(status_code=401, detail="Token inválido o expirado")
+        
+    user = crud.get_user(db, user_id=int(user_id))
+    if user is None:
+        raise HTTPException(status_code=401, detail="Usuario no encontrado en la red")
+    return user
+
+
+# 5. POBLADO INICIAL (Seeding) al arrancar el servidor
 @app.on_event("startup")
 def seed_database():
     db = SessionLocal()
 
-    # 1. Crear usuario administrador por defecto (User ID 1)
+    # A) Crear usuario administrador por defecto
     if not crud.get_user_by_email(db, email="admin@uah.es"):
         crud.create_user(db, schemas.UserCreate(
             username="Borja_Admin",
@@ -50,7 +68,7 @@ def seed_database():
             password="supersecreto"
         ))
 
-    # 2. Plan de Estudios Pedagógico de Música y Código
+    # B) Inyectar el Plan de Estudios si no existe
     curriculum = [
         schemas.LessonCreate(
             lesson_number="1",
@@ -79,7 +97,6 @@ def seed_database():
         )
     ]
 
-    # Inyectar lecciones si la tabla está vacía
     for lesson_data in curriculum:
         if not crud.get_lesson_by_number(db, lesson_number=lesson_data.lesson_number):
             crud.create_lesson(db, lesson_data)
@@ -108,6 +125,28 @@ def db_check(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Error de conexión: {str(e)}")
 
 # --- ENDPOINTS DINÁMICOS ---
+
+## --- RUTA PARA BORRAR PROYECTOS (Solo el dueño puede) ---
+@app.delete("/api/projects/{project_id}")
+def delete_project(project_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    """Elimina una pista específica del usuario autenticado."""
+    success = crud.delete_user_project(db=db, project_id=project_id, user_id=current_user.id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado o no tienes permiso para borrarlo.")
+    return {"message": "Proyecto eliminado con éxito."}
+
+## --- FUNCIÓN SEMILLA PARA LECCIONES ---
+def seed_lessons(db: Session):
+    """Inyecta las lecciones si la tabla de lecciones está vacía."""
+    if db.query(models.Lesson).count() == 0:
+        lecciones_iniciales = [
+            models.Lesson(lesson_number="01", title="Tu primer ritmo básico", hint_code="s('bd sd bd sd').fast(2)"),
+            models.Lesson(lesson_number="02", title="Polirritmos con corchetes", hint_code="s('[bd sn] [hc hc hc]').fast(1.5)"),
+            models.Lesson(lesson_number="03", title="Melodías y Sintetizadores", hint_code="note('c e g c5').s('sawtooth').lpf(800)")
+        ]
+        db.add_all(lecciones_iniciales)
+        db.commit()
+        print("Base de datos inicializada con 3 lecciones de Strudel.")
 
 @app.get("/api/lessons/{lesson_number}", response_model=schemas.Lesson)
 def read_lesson(lesson_number: str, db: Session = Depends(get_db)):

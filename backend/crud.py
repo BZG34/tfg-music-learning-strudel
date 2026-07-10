@@ -69,3 +69,16 @@ def create_user_project(db: Session, project: schemas.ProjectCreate, user_id: in
     db.commit()
     db.refresh(db_project)
     return db_project
+
+def delete_user_project(db: Session, project_id: int, user_id: int):
+    """Elimina un proyecto solo si pertenece al usuario que lo solicita."""
+    db_project = db.query(models.Project).filter(
+        models.Project.id == project_id, 
+        models.Project.owner_id == user_id
+    ).first()
+    
+    if db_project:
+        db.delete(db_project)
+        db.commit()
+        return True
+    return False
