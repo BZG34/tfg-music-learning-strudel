@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { evaluate, hush, initStrudel, samples } from '@strudel/web';
 import '@strudel/webaudio';
+import Header from '../components/Header';
 
 // CodeMirror 6 imports
 import { EditorView, basicSetup } from 'codemirror';
@@ -65,31 +66,6 @@ const strudelTheme = EditorView.theme({
   '.tok-punctuation':   { color: '#6272a4' },
   '.tok-typeName':      { color: '#ffabf3' },
 }, { dark: true });
-
-/*
-// ─── Default starter code ────────────────────────────────────────────────────
-const DEFAULT_CODE = `// Lección 04 — Polyphonic Cycles
-// Usa stack() para combinar capas rítmicas
-
-stack(
-  s("bd*4"),
-  s("hh*8").gain(0.8),
-  s("~ [cp, sd]").room(0.4)
-).slow(2)`;
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
-// ─── Lesson data ─────────────────────────────────────────────────────────────
-const LESSON = {
-  number: '04',
-  title: 'Polyphonic Cycles',
-  objectives: [
-    { done: true,  text: 'Define un patrón de kick 4/4' },
-    { done: false, text: 'Añade una capa de hi-hat polirrítmica con notación "8th"' },
-    { done: false, text: 'Aplica un filtro low-pass a la segunda capa' },
-  ],
-};
-*/
 
 const DEFAULT_CODE = `// Conectando con la base de datos...\n`;
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -439,48 +415,13 @@ export default function LiveEditor() {
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div className="page-live-editor bg-[#0A0A0B] text-on-surface font-body-md overflow-hidden h-screen flex flex-col selection:bg-primary-container/30 selection:text-primary-container">
+    <div className="page-live-editor bg-[#0A0A0B] text-on-surface font-body-md overflow-hidden h-screen flex flex-col selection:bg-primary-container/30 selection:text-primary-container pt-20">
 
       {/* HEADER DEL EDITOR EN VIVO */}
-      <header className="bg-[#0A0A0B]/80 backdrop-blur-xl border-b border-[#00FF41]/20 shadow-[0_0_15px_rgba(0,255,65,0.1)] w-full flex-shrink-0 z-50">
-        <nav className="flex items-center w-full px-6 py-3 max-w-[1920px] mx-auto">
-          {/* IZQUIERDA: Logo */}
-          <div className="flex-1 flex items-center">
-            <Link to="/" className="text-2xl font-black text-[#00FF41] tracking-widest font-['Space_Grotesk'] uppercase">PAMS</Link>
-          </div>
-
-          {/* CENTRO: Barra de navegación centrada */}
-          <div className="flex-1 hidden lg:flex items-center justify-center gap-8 font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-sm">
-            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/">Inicio</Link>
-            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/dashboard">Panel</Link>
-            <Link className="text-[#00FF41] border-b-2 border-[#00FF41] pb-1" to="/editor">Editor en vivo</Link>
-            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/gallery">Galería</Link>
-            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/lessons">Lecciones</Link>
-          </div>
-
-          {/* DERECHA: Widgets del editor y Perfil */}
-          <div className="flex-1 flex items-center justify-end gap-4">
-            <div className="hidden xl:flex items-center bg-[#141416] border border-[#00FF41]/20 px-3 py-1.5 rounded-lg">
-              {/*
-              <span className="material-symbols-outlined text-[#00FF41] mr-2 text-sm">terminal</span>
-              */}
-              <span className="font-mono text-slate-400 text-xs">res_kernel_v1.0.4</span>
-            </div>
-            {/*
-            <div className="hidden 2xl:flex items-center gap-1 text-[10px] font-mono text-slate-600">
-              <kbd className="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-500">Ctrl</kbd>
-              <span>+</span>
-              <kbd className="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-500">Enter</kbd>
-            </div>
-            */}
-            <Link to="/editor" className="bg-[#00FF41] text-[#003907] font-bold py-1.5 px-4 rounded uppercase text-[10px] tracking-widest hover:brightness-110 active:scale-95 transition-all whitespace-nowrap">Nueva Pista</Link>
-            <button type="button" aria-label="Notifications" className="material-symbols-outlined text-[#00FF41] hover:bg-[#00FF41]/5 p-2 rounded transition-all active:scale-95">notifications</button>
-            <div className="w-8 h-8 rounded-full border border-[#00FF41]/30 overflow-hidden flex-shrink-0">
-              <img alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrwr2NOkbueflO9JZhP7HCLdgrd0O-jDMGaCUf5HLfwPwcnn5toY3w7B8ABtj7YHePaFaIt4VamW79iS7UMHCwtjRQEttszG25C36uTjGiZL_Ho33F272VBdvbm0DsZ28y5rfbpbAUQTyajY3bo2spV9L56V5kpXu3cy0jHMLdf8MUSbBQAzhvr9qAl8M2-c_Kqs1wsTLyxv5jWHu9G88lrwRQUd6cEAAT3HH8DCPZxNIMSkQSUdPPjoBAMtpvryqOtnAsJf5-yIo" />
-            </div>
-          </div>
-        </nav>
-      </header>
+      {/* Prueba, quitar
+      <Header isEditor={true} />
+      */}
+      <Header />
 
       {/* ── BODY ───────────────────────────────────────────────────────────── */}
       <div className="flex flex-1 overflow-hidden">

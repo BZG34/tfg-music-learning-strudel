@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import Header from '../components/Header';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
@@ -31,35 +32,7 @@ export default function Lessons() {
     return (
         <div className="page-lessons bg-[#0A0A0B] text-white min-h-screen selection:bg-[#00FF41]/30">
             {/* HEADER ESTANDARIZADO */}
-            <header className="fixed top-0 z-50 w-full bg-[#0A0A0B]/80 backdrop-blur-xl border-b border-[#00FF41]/20 shadow-[0_0_15px_rgba(0,255,65,0.1)] flex-shrink-0">
-                <nav className="flex items-center w-full px-6 py-4 max-w-[1920px] mx-auto">
-                {/* IZQUIERDA: Logo */}
-                <div className="flex-1 flex items-center">
-                    <Link to="/" className="text-2xl font-black text-[#00FF41] tracking-widest font-['Space_Grotesk'] uppercase">PAMS</Link>
-                </div>
-                
-                {/* CENTRO: Barra de navegación centrada */}
-                <div className="flex-1 hidden md:flex items-center justify-center gap-8 font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-sm">
-                    <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/">Inicio</Link>
-                    <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/dashboard">Panel</Link>
-                    <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/editor">Editor en vivo</Link>
-                    <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/gallery">Galería</Link>
-                    <Link className="text-[#00FF41] border-b-2 border-[#00FF41] pb-1" to="/lessons">Lecciones</Link>
-                </div>
-
-                {/* DERECHA: Iconos y Perfil */}
-                <div className="flex-1 flex items-center justify-end gap-4">
-                    {/*
-                    <button type="button" aria-label="Terminal" className="material-symbols-outlined text-[#00FF41] hover:bg-[#00FF41]/5 p-2 rounded transition-all active:scale-95">terminal</button>
-                    */}
-                    <Link to="/editor" className="bg-[#00FF41] text-[#003907] font-bold py-1.5 px-4 rounded uppercase text-[10px] tracking-widest hover:brightness-110 active:scale-95 transition-all whitespace-nowrap">Nueva Pista</Link>
-                    <button type="button" aria-label="Notifications" className="material-symbols-outlined text-[#00FF41] hover:bg-[#00FF41]/5 p-2 rounded transition-all active:scale-95">notifications</button>
-                    <div className="w-8 h-8 rounded-full border border-[#00FF41]/30 overflow-hidden flex-shrink-0">
-                    <img alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrwr2NOkbueflO9JZhP7HCLdgrd0O-jDMGaCUf5HLfwPwcnn5toY3w7B8ABtj7YHePaFaIt4VamW79iS7UMHCwtjRQEttszG25C36uTjGiZL_Ho33F272VBdvbm0DsZ28y5rfbpbAUQTyajY3bo2spV9L56V5kpXu3cy0jHMLdf8MUSbBQAzhvr9qAl8M2-c_Kqs1wsTLyxv5jWHu9G88lrwRQUd6cEAAT3HH8DCPZxNIMSkQSUdPPjoBAMtpvryqOtnAsJf5-yIo" />
-                    </div>
-                </div>
-                </nav>
-            </header>
+            <Header />
 
             {/* CONTENIDO PRINCIPAL */}
             <main className="max-w-4xl mx-auto pt-32 px-6 pb-20">

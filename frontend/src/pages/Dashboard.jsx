@@ -1,72 +1,44 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import Header from '../components/Header'; // Importamos el Header genérico
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function Dashboard() {
-  const [studentName] = useState('Borja_Admin');
+  const { user } = useAuth(); // Extraemos el usuario real logueado
+  
+  // Si el usuario existe usamos su alias, si no, ponemos 'Invitado' por seguridad
+  const studentName = user?.username || 'Invitado';
   const [progress] = useState(30);
   const [completedLessons] = useState(3);
   const [totalLessons] = useState(10);
 
-  // --- ESTADOS PARA LOS PROYECTOS ---
   const [myTracks, setMyTracks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchMyTracks = async () => {
+      if (!user?.id) return; // Si no hay usuario, no pedimos nada
       try {
-        // Usamos el ID 1 temporalmente hasta implementar el Login
-        const response = await fetch(`${API_BASE_URL}/api/users/1/projects/`);
+        // Ruta dinámica con el ID del usuario logueado
+        const response = await fetch(`${API_BASE_URL}/api/users/${user.id}/projects/`);
         if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
         const data = await response.json();
         setMyTracks(data);
       } catch (error) {
-        console.error("Error al cargar los proyectos:", error);
+        console.error("Error al cargar los proyectos personales:", error);
       } finally {
         setIsLoading(false);
       }
     };
     fetchMyTracks();
-  }, []);
+  }, [user]); // Se ejecuta cada vez que el usuario cambie o se loguee
 
   return (
     <div className="page-dashboard bg-[#0A0A0B] text-on-background font-body-md min-h-screen selection:bg-primary-container/30 selection:text-primary-container">
       {/* HEADER ESTANDARIZADO */}
-      <header className="fixed top-0 z-50 w-full bg-[#0A0A0B]/80 backdrop-blur-xl border-b border-[#00FF41]/20 shadow-[0_0_15px_rgba(0,255,65,0.1)] flex-shrink-0">
-        <nav className="flex items-center w-full px-6 py-4 max-w-[1920px] mx-auto">
-          {/* IZQUIERDA: Logo */}
-          <div className="flex-1 flex items-center">
-            <Link to="/" className="text-2xl font-black text-[#00FF41] tracking-widest font-['Space_Grotesk'] uppercase">PAMS</Link>
-          </div>
-          
-          {/* CENTRO: Barra de navegación centrada */}
-          <div className="flex-1 hidden md:flex items-center justify-center gap-8 font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-sm">
-            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/">Inicio</Link>
-            <Link className="text-[#00FF41] border-b-2 border-[#00FF41] pb-1" to="/dashboard">Panel</Link>
-            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/editor">Editor en vivo</Link>
-            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/gallery">Galería</Link>
-            <Link className="text-slate-500 hover:text-slate-300 transition-colors" to="/lessons">Lecciones</Link>
-          </div>
-
-          {/* DERECHA: Iconos y Perfil */}
-          <div className="flex-1 flex items-center justify-end gap-4">
-            {/*
-            <button type="button" aria-label="Terminal" className="material-symbols-outlined text-[#00FF41] hover:bg-[#00FF41]/5 p-2 rounded transition-all active:scale-95">terminal</button>
-            */}
-            <Link to="/editor" className="bg-[#00FF41] text-[#003907] font-bold py-1.5 px-4 rounded uppercase text-[10px] tracking-widest hover:brightness-110 active:scale-95 transition-all whitespace-nowrap">Nueva Pista</Link>
-            {/*
-            <button type="button" aria-label="Notifications" className="material-symbols-outlined text-[#00FF41] hover:bg-[#00FF41]/5 p-2 rounded transition-all active:scale-95">notifications</button>
-            */}
-            <Link to="/login" className="text-[10px] font-mono text-[#00FF41] border border-[#00FF41]/30 px-3 py-1.5 rounded hover:bg-[#00FF41]/10 transition-colors uppercase tracking-widest hidden sm:block">
-              Iniciar Sesión
-            </Link>
-            <div className="w-8 h-8 rounded-full border border-[#00FF41]/30 overflow-hidden flex-shrink-0">
-              <img alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrwr2NOkbueflO9JZhP7HCLdgrd0O-jDMGaCUf5HLfwPwcnn5toY3w7B8ABtj7YHePaFaIt4VamW79iS7UMHCwtjRQEttszG25C36uTjGiZL_Ho33F272VBdvbm0DsZ28y5rfbpbAUQTyajY3bo2spV9L56V5kpXu3cy0jHMLdf8MUSbBQAzhvr9qAl8M2-c_Kqs1wsTLyxv5jWHu9G88lrwRQUd6cEAAT3HH8DCPZxNIMSkQSUdPPjoBAMtpvryqOtnAsJf5-yIo" />
-            </div>
-          </div>
-        </nav>
-      </header>
+      <Header />
 
       {/*
       <aside className="fixed left-0 top-0 h-full flex flex-col z-40 bg-[#141416] border-r border-[#00FF41]/10 w-64 pt-20">

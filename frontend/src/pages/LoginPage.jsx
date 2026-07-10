@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function LoginPage() {
+    const { login } = useAuth();
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -39,9 +41,8 @@ export default function LoginPage() {
 
                 const data = await response.json();
 
-                // Guardamos el token y los datos del usuario en el navegador (Local Storage)
-                localStorage.setItem('pams_token', data.access_token);
-                localStorage.setItem('pams_user', JSON.stringify(data.user));
+                // Usamos nuestro contexto global para registrar la sesión en toda la app a la vez
+                login(data.user, data.access_token);
 
                 // Redirigimos al Dashboard
                 navigate('/dashboard');
