@@ -65,7 +65,7 @@ export default function Lessons() {
             <main className="max-w-4xl mx-auto pt-32 px-6 pb-20">
                 <div className="space-y-4 mb-12">
                     <span className="text-xs font-bold text-[#00FF41] tracking-widest uppercase font-mono">
-            // Academia de código sonoro
+            Academia de código sonoro
                     </span>
                     <h1 className="text-4xl font-black font-['Space_Grotesk'] uppercase tracking-tight">
                         Plan de Estudios Musical

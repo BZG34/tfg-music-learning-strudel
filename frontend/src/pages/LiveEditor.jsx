@@ -681,7 +681,7 @@ export default function LiveEditor() {
             <span className="text-[#00FF41] font-mono text-sm flex-shrink-0">$</span>
             <input
               className="bg-transparent border-none text-xs w-full text-slate-300 placeholder:text-slate-600 focus:outline-none font-mono"
-              placeholder="Quick command — /bpm 140 · /hush · /eval · /help"
+              placeholder="Atajos — /bpm 140 · /hush · /eval · /help"
               type="text"
               value={quickCmd}
               onChange={e => setQuickCmd(e.target.value)}
@@ -697,8 +697,8 @@ export default function LiveEditor() {
           {/* Spectrum visualizer */}
           <div className="p-6 border-b border-[#00FF41]/10 flex-shrink-0">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest font-['Space_Grotesk']">Spectral Output</h3>
-              <span className="text-[10px] text-[#00FF41] font-mono">STEREO // 44.1kHz</span>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest font-['Space_Grotesk']">Espectro</h3>
+              <span className="text-[10px] text-[#00FF41] font-mono">ESTÉREO // 44.1kHz</span>
             </div>
             <div className="h-24 bg-black rounded-lg border border-[#00FF41]/10 overflow-hidden flex items-end justify-around px-6 pb-2">
               {[20, 32, 12, 40, 28, 16, 36, 22, 30, 14, 38, 26].map((h, i) => (

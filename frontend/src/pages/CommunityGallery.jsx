@@ -87,7 +87,7 @@ export default function CommunityGallery() {
 			</aside>
 			*/}
 
-			<main className="lg:ml-64 pt-24 min-h-screen cyber-grid relative pb-20">
+			<main className="pt-24 min-h-screen cyber-grid relative pb-20">
 				<div className="max-w-7xl mx-auto px-6 lg:px-beat-gap py-beat-gap">
 					<section className="mb-12">
 						<div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -110,7 +110,7 @@ export default function CommunityGallery() {
 						<div className="flex flex-col md:flex-row gap-4">
 							<div className="relative flex-grow">
 								<span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">search</span>
-								<input className="w-full bg-[#0A0A0B] border-none text-on-surface placeholder:text-slate-600 pl-10 focus:ring-1 focus:ring-[#00FF41] font-mono text-sm h-12 rounded" placeholder="Search tracks, users, or syntax..." type="text" />
+								<input className="w-full bg-[#0A0A0B] border-none text-on-surface placeholder:text-slate-600 pl-10 focus:ring-1 focus:ring-[#00FF41] font-mono text-sm h-12 rounded" placeholder="Buscar pistas, usuarios..." type="text" />
 							</div>
 							<div className="flex gap-2">
 								<select className="bg-[#0A0A0B] border-none text-slate-400 focus:ring-1 focus:ring-[#00FF41] font-['Space_Grotesk'] text-sm rounded h-12 px-4 appearance-none">

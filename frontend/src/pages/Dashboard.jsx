@@ -104,22 +104,22 @@ export default function Dashboard() {
       </aside>
       */}
 
-      <main className="ml-64 pt-24 px-8 pb-12">
+      <main className="pt-24 px-8 pb-12">
         <div className="max-w-6xl mx-auto space-y-8">
           <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <span className="text-xs font-bold text-[#00FF41] uppercase mb-2 block tracking-widest font-['Space_Grotesk']">Student Workspace</span>
-              <h1 className="text-4xl font-black font-['Space_Grotesk']">Welcome back, {studentName}.</h1>
+              <span className="text-xs font-bold text-[#00FF41] uppercase mb-2 block tracking-widest font-['Space_Grotesk']">Area de Trabajo del Estudiante</span>
+              <h1 className="text-4xl font-black font-['Space_Grotesk']">Bienvenido de nuevo, {studentName}.</h1>
             </div>
             <div className="bg-[#141416] p-6 border border-[#00FF41]/10 rounded-xl min-w-[280px]">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-xs text-slate-400 font-['Space_Grotesk'] uppercase">Total Progress</span>
+                <span className="text-xs text-slate-400 font-['Space_Grotesk'] uppercase">Progreso</span>
                 <span className="text-[#00FF41] font-bold font-mono">{progress}%</span>
               </div>
               <div className="h-1.5 w-full bg-[#1A1A1C] rounded-full overflow-hidden">
                 <div className="h-full bg-[#00FF41]" style={{ width: `${progress}%` }}></div>
               </div>
-              <p className="mt-3 text-xs text-slate-500 font-mono italic">// {completedLessons}/{totalLessons} Lessons Completed</p>
+              <p className="mt-3 text-xs text-slate-500 font-mono italic">// {completedLessons}/{totalLessons} Lecciones Completadas</p>
             </div>
           </section>
 
@@ -170,10 +170,11 @@ export default function Dashboard() {
                     </div>
                   </div>
                 </div>
+                {/*
                 <div className="pt-6 border-t border-[#00FF41]/5 mt-6">
                   <div className="flex justify-between text-xs font-mono text-slate-400 mb-2">
-                    <span>Current Streak</span>
-                    <span className="text-[#00FF41]">4 Days</span>
+                    <span>Racha Actual</span>
+                    <span className="text-[#00FF41]">4 Días</span>
                   </div>
                   <div className="flex gap-1">
                     <div className="h-1 flex-1 bg-[#00FF41]"></div>
@@ -185,6 +186,7 @@ export default function Dashboard() {
                     <div className="h-1 flex-1 bg-slate-800"></div>
                   </div>
                 </div>
+                */}
               </div>
             </div>
           </div>
@@ -193,7 +195,7 @@ export default function Dashboard() {
           <section className="pt-8">
             <div className="flex items-center justify-between mb-6 border-b border-[#00FF41]/10 pb-2">
               <h2 className="text-xl font-bold font-['Space_Grotesk'] tracking-widest uppercase">Mis Pistas Guardadas</h2>
-              <span className="text-[#00FF41] font-mono text-xs">{myTracks.length} TRACKS</span>
+              <span className="text-[#00FF41] font-mono text-xs">{myTracks.length} PISTAS</span>
             </div>
             
             {isLoading ? (
@@ -251,7 +253,7 @@ export default function Dashboard() {
         </div>
       </footer>
 
-      <div className="fixed bottom-0 left-64 right-0 h-10 bg-black border-t border-[#00FF41]/20 px-6 flex items-center gap-3 z-30">
+      <div className="fixed bottom-0 left-0 right-0 h-10 bg-black border-t border-[#00FF41]/20 px-6 flex items-center gap-3 z-30">
         <span className="material-symbols-outlined text-[#00FF41] text-sm">terminal</span>
         <span className="text-xs font-mono text-[#00FF41]">&gt;</span>
         <span className="text-xs font-mono text-slate-400">await resonance.initialize_session()</span>
