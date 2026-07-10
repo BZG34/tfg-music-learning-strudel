@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext'; // Importamos el proveedor de autenticación
+import ProtectedRoute from './components/ProtectedRoute'; // Importamos el componente de ruta protegida
 
 // Importamos las páginas
 import LandingPage from './pages/LandingPage';
@@ -21,17 +22,17 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           
           {/* Ruta del Panel de Control */}
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           
           {/* Ruta del Editor Interactivo */}
-          <Route path="/editor" element={<LiveEditor />} />
-          <Route path="/editor/:lessonId" element={<LiveEditor />} />
+          <Route path="/editor" element={<ProtectedRoute><LiveEditor /></ProtectedRoute>} />
+          <Route path="/editor/:lessonId" element={<ProtectedRoute><LiveEditor /></ProtectedRoute>} />
           
           {/* Ruta de la Galería de la Comunidad */}
-          <Route path="/gallery" element={<CommunityGallery />} />
+          <Route path="/gallery" element={<ProtectedRoute><CommunityGallery /></ProtectedRoute>} />
           
           {/* Ruta de las Lecciones */}
-          <Route path="/lessons" element={<Lessons />} />
+          <Route path="/lessons" element={<ProtectedRoute><Lessons /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
