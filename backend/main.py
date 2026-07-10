@@ -184,3 +184,31 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
         "token_type": "bearer",
         "user": {"id": user.id, "username": user.username, "email": user.email}
     }
+
+# --- DECODIFICADOR DE TOKENS ---
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    """Desencripta el Token JWT para descubrir qué usuario está haciendo la petición."""
+    try:
+        # Abrimos el token con la misma llave secreta que usamos al crearlo
+        payload = security.jwt.decode(token, security.SECRET_KEY, algorithms=[security.ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Credenciales inválidas")
+    except security.JWTError:
+        raise HTTPException(status_code=401, detail="Token inválido o expirado")
+        
+    user = crud.get_user(db, user_id=int(user_id))
+    if user is None:
+        raise HTTPException(status_code=401, detail="Usuario no encontrado en la red")
+    return user
+
+# --- RUTA PARA GUARDAR LA PISTA ---
+@app.post("/api/projects/", response_model=schemas.Project)
+def create_project(project: schemas.ProjectCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    """
+    Ruta protegida. Solo un usuario con Token válido puede guardar una pista.
+    FastAPI inyecta automáticamente al 'current_user' tras validar el Token.
+    """
+    return crud.create_user_project(db=db, project=project, user_id=current_user.id)

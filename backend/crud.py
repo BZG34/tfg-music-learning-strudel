@@ -52,3 +52,20 @@ def create_lesson(db: Session, lesson: schemas.LessonCreate):
     db.commit()
     db.refresh(db_lesson)
     return db_lesson
+
+def get_user(db: Session, user_id: int):
+    """Obtiene un usuario por su ID."""
+    return db.query(models.User).filter(models.User.id == user_id).first()
+
+def create_user_project(db: Session, project: schemas.ProjectCreate, user_id: int):
+    """Guarda un nuevo proyecto musical ligado al ID del creador."""
+    db_project = models.Project(
+        title=project.title,
+        strudel_code=project.strudel_code,
+        bpm=project.bpm,
+        owner_id=user_id
+    )
+    db.add(db_project)
+    db.commit()
+    db.refresh(db_project)
+    return db_project

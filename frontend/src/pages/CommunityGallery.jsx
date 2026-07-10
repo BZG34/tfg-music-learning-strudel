@@ -127,7 +127,7 @@ export default function CommunityGallery() {
                                         <h3 className="font-headline-md text-xl text-on-surface mb-1 group-hover:text-[#00FF41] transition-colors line-clamp-1">{track.title}</h3>
                                         <div className="flex items-center gap-2 mb-4">
                                             <div className="w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center"><span className="material-symbols-outlined text-[12px]">person</span></div>
-                                            <span className="text-sm text-slate-500">@usuario_{track.owner_id}</span>
+                                            <span className="font-mono text-[#00FF41]">@{track.owner?.username || 'desconocido'}</span>
                                         </div>
                                         
                                         {/* Preview del código Strudel guardado en vez de tags */}

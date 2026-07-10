@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { evaluate, hush, initStrudel, samples } from '@strudel/web';
 import '@strudel/webaudio';
 import Header from '../components/Header';
@@ -12,7 +13,7 @@ import { oneDark } from '@codemirror/theme-one-dark';
 import { keymap } from '@codemirror/view';
 import { defaultKeymap } from '@codemirror/commands';
 
-// ─── Strudel CodeMirror theme (matches PAMS palette) ────────────────────────
+// ─── Tema de Strudel CodeMirror (acorde a la paleta de PAMS) ────────────────────────
 const strudelTheme = EditorView.theme({
   '&': {
     backgroundColor: 'transparent',
@@ -152,6 +153,7 @@ function SpectrumBar({ isPlaying, delay = 0, baseH = 4 }) {
 // ─── Main component ──────────────────────────────────────────────────────────
 export default function LiveEditor() {
   const { lessonId } = useParams(); // <-- Captura el número de la URL
+  const { token, user, authenticated } = useAuth(); // <--- Extraemos el token y el usuario
   // Estado dinámico para la lección
   const [lesson, setLesson] = useState({ number: '...', title: 'Cargando...', objectives: [], hint: '' });
   const [isPlaying,    setIsPlaying]    = useState(false);
@@ -240,7 +242,7 @@ export default function LiveEditor() {
             isProject: true, // <-- Bandera identificadora
             number: `P-${projectData.id}`,
             title: projectData.title,
-            owner_id: projectData.owner_id, // <-- Guardamos el autor del proyecto
+            owner_username: projectData.owner?.username || `usuario_${projectData.owner_id}`, // <-- Guardamos el autor del proyecto
             hint: "",
             objectives: []
           });
@@ -388,28 +390,38 @@ export default function LiveEditor() {
 
   // ── Guardar proyecto en PostgreSQL ───────────────────────────────────────
   const handleSaveTrack = async () => {
+    // Si no está logueado, le avisamos por la consola del editor y cancelamos
+    if (!authenticated) {
+      addLog('warning', 'Acceso denegado: Inicia sesión para guardar tus pistas en la red.');
+      return;
+    }
+
     const currentCode = getCode();
-    addLog('system', 'Guardando pista en el servidor...');
+    addLog('system', 'Cifrando envío y guardando pista en el servidor...');
     
     try {
-      // Usamos el User ID 1 temporalmente hasta tener el Login
-      const response = await fetch(`${API_BASE_URL}/api/users/1/projects/`, {
+      // Usamos la nueva ruta protegida e inyectamos el Token JWT en la cabecera
+      const response = await fetch(`${API_BASE_URL}/api/projects/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // <--- El pase VIP
+        },
         body: JSON.stringify({
-          title: `Sesión_${lesson.number}_BPM${bpm}`,
+          title: lesson.isNewTrack ? `Composición Libre - ${bpm} BPM` : `Remezcla ${lesson.number}`,
           strudel_code: currentCode,
           bpm: bpm
         })
       });
 
       if (response.ok) {
-        addLog('success', '¡Pista guardada permanentemente en PostgreSQL!');
+        addLog('success', `¡Pista guardada! Podrás verla en tu Panel como ${user.username}.`);
       } else {
-        addLog('error', 'Fallo al guardar: el usuario 1 no existe en la BD.');
+        const errData = await response.json();
+        addLog('error', `Fallo de servidor: ${errData.detail || 'Operación rechazada.'}`);
       }
     } catch (err) {
-      addLog('error', 'Error de red al intentar guardar la pista.');
+      addLog('error', 'Fallo de enlace: Error de red al intentar conectar con el servidor.');
     }
   };
 
@@ -461,7 +473,7 @@ export default function LiveEditor() {
                       <span className="material-symbols-outlined text-[#00FF41] text-4xl mb-4">public</span>
                       <h3 className="text-[#00FF41] font-bold font-['Space_Grotesk'] mb-2">Remezcla Comunitaria</h3>
                       <p className="text-sm font-body-md text-slate-300">
-                        Código original publicado por <span className="font-mono text-[#00FF41] bg-[#00FF41]/10 px-2 py-0.5 rounded">@usuario_{lesson.owner_id}</span> en la comunidad.
+                        Código original publicado por <span className="font-mono text-[#00FF41] bg-[#00FF41]/10 px-2 py-0.5 rounded">@{lesson.owner_username}</span> en la comunidad.
                       </p>
                       <p className="text-xs text-slate-500 mt-6 border-t border-[#00FF41]/10 pt-4">
                         Modifica los patrones a tu gusto. Al pulsar "Guardar pista", se publicará como un nuevo fork (versión) en la base de datos bajo tu usuario.
