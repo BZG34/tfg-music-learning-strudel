@@ -1,5 +1,7 @@
 import os
-from fastapi import FastAPI, Depends, HTTPException
+import security
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -150,3 +152,35 @@ def read_user_projects(user_id: int, db: Session = Depends(get_db)):
 def read_all_lessons(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """Devuelve la lista completa de lecciones del plan de estudios."""
     return crud.get_lessons(db, skip=skip, limit=limit)
+
+@app.post("/api/register", response_model=schemas.User)
+def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    """Ruta para que nuevos alumnos se registren en la plataforma PAMS."""
+    db_user = crud.get_user_by_email(db, email=user.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="El email ya está registrado.")
+    return crud.create_user(db, user=user)
+
+@app.post("/api/login")
+def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    """Ruta de Login. Recibe credenciales, valida y devuelve el Token JWT."""
+    # En OAuth2Form, 'username' se mapea al campo que el usuario rellene (usaremos su email)
+    user = crud.get_user_by_email(db, email=form_data.username)
+    
+    if not user or not security.verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email o contraseña incorrectos.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        
+    # Si todo es correcto, generamos su pase VIP (token JWT) guardando su ID y nombre
+    access_token = security.create_access_token(
+        data={"sub": str(user.id), "username": user.username, "email": user.email}
+    )
+    
+    return {
+        "access_token": access_token, 
+        "token_type": "bearer",
+        "user": {"id": user.id, "username": user.username, "email": user.email}
+    }

@@ -4,3 +4,8 @@ sqlalchemy
 psycopg2-binary
 pydantic-settings
 python-multipart
+
+# Seguridad
+passlib[bcrypt]==1.7.4 # Cifrar y verificar las contraseñas
+python-jose[cryptography]==3.3.0 # Manejo de tokens JWT
+python-multipart==0.0.19 # Manejo de solicitudes multipart (formularios de Login estándar del navegador)
