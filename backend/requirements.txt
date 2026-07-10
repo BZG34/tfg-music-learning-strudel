@@ -6,6 +6,7 @@ pydantic-settings
 python-multipart
 
 # Seguridad
+bcrypt==4.0.1 # Versión específica para evitar problemas de compatibilidad
 passlib[bcrypt]==1.7.4 # Cifrar y verificar las contraseñas
 python-jose[cryptography]==3.3.0 # Manejo de tokens JWT
 python-multipart==0.0.19 # Manejo de solicitudes multipart (formularios de Login estándar del navegador)
