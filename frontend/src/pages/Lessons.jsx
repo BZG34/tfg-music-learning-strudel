@@ -58,33 +58,38 @@ export default function Lessons() {
                     </div>
                 ) : (
                     <div className="relative border-l border-[#00FF41]/20 pl-6 ml-4 space-y-12">
-                        {lessons.map((lesson) => (
-                            <div key={lesson.id} className="relative group">
-                                {/* Nodo de la línea de tiempo */}
-                                <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-black border-2 border-[#00FF41] group-hover:bg-[#00FF41] transition-colors shadow-[0_0_10px_rgba(0,255,65,0.4)]"></div>
+                        {lessons.map((lesson) => {
+                            // Extraemos solo la primera línea (el comentario) para que el diseño quede limpio
+                            const codePreview = lesson.hint_code ? lesson.hint_code.split('\n')[0] : '// Código base';
 
-                                <div className="bg-[#141416] border border-[#00FF41]/10 p-6 rounded-xl hover:border-[#00FF41]/40 transition-all shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                                    <div>
-                                        <span className="text-[10px] font-mono text-[#00FF41] uppercase bg-[#00FF41]/5 px-2 py-0.5 rounded border border-[#00FF41]/10">
-                                            Módulo 0{lesson.lesson_number}
-                                        </span>
-                                        <h3 className="text-xl font-bold font-['Space_Grotesk'] mt-2 text-white group-hover:text-[#00FF41] transition-colors">
-                                            {lesson.title}
-                                        </h3>
-                                        <pre className="mt-3 text-[11px] font-mono text-slate-500 max-w-md truncate">
-                                            {lesson.hint_code}
-                                        </pre>
+                            return (
+                                <div key={lesson.id} className="relative group">
+                                    {/* Nodo de la línea de tiempo */}
+                                    <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-black border-2 border-[#00FF41] group-hover:bg-[#00FF41] transition-colors shadow-[0_0_10px_rgba(0,255,65,0.4)]"></div>
+
+                                    <div className="bg-[#141416] border border-[#00FF41]/10 p-6 rounded-xl hover:border-[#00FF41]/40 transition-all shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                                        <div>
+                                            <span className="text-[10px] font-mono text-[#00FF41] uppercase bg-[#00FF41]/5 px-2 py-0.5 rounded border border-[#00FF41]/10">
+                                                Módulo 0{lesson.lesson_number}
+                                            </span>
+                                            <h3 className="text-xl font-bold font-['Space_Grotesk'] mt-2 text-white group-hover:text-[#00FF41] transition-colors">
+                                                {lesson.title}
+                                            </h3>
+                                            <pre className="mt-3 text-[11px] font-mono text-slate-500 max-w-md truncate">
+                                                {codePreview}
+                                            </pre>
+                                        </div>
+
+                                        <Link
+                                            to={`/editor/${lesson.lesson_number}`}
+                                            className="sm:self-center text-center bg-[#00FF41]/10 border border-[#00FF41]/30 text-[#00FF41] px-5 py-3 rounded font-['Space_Grotesk'] text-xs font-bold uppercase tracking-widest hover:bg-[#00FF41] hover:text-[#003907] transition-all whitespace-nowrap"
+                                        >
+                                            Iniciar Lección
+                                        </Link>
                                     </div>
-
-                                    <Link
-                                        to={`/editor/${lesson.lesson_number}`}
-                                        className="sm:self-center text-center bg-[#00FF41]/10 border border-[#00FF41]/30 text-[#00FF41] px-5 py-3 rounded font-['Space_Grotesk'] text-xs font-bold uppercase tracking-widest hover:bg-[#00FF41] hover:text-[#003907] transition-all whitespace-nowrap"
-                                    >
-                                        Iniciar Lección
-                                    </Link>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </main>

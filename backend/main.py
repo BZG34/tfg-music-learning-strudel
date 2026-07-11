@@ -20,7 +20,7 @@ app = FastAPI(
     version="0.1.0"
 )
 
-# 3. Configuración CORS para que React (en otro puerto) pueda acceder
+# 3. Configuración CORS para que React pueda acceder
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], # En producción cambiar por la IP de la Raspberry
@@ -29,7 +29,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 4. Dependencia para obtener la sesión de la DB
+# 4. Dependencias comunes
 def get_db():
     db = SessionLocal()
     try:
@@ -103,50 +103,52 @@ def seed_database():
 
     db.close()
 
-# --- ENDPOINTS ORIGINALES ---
+
+# ─── RUTAS DEL SISTEMA ────────────────────────────────────────────────────────
 
 @app.get("/")
 def read_root():
-    return {
-        "status": "online",
-        "message": "Servidor de música listo",
-        "university": "UAH - EPS"
-    }
+    return {"status": "online", "message": "Servidor de música listo", "university": "UAH - EPS"}
 
 @app.get("/health-check")
 def db_check(db: Session = Depends(get_db)):
-    """
-    Verifica si la conexión con PostgreSQL es real en el almacenamiento NVMe.
-    """
     try:
         db.execute(text("SELECT 1"))
         return {"database": "connected", "storage": "NVMe SSD detected"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error de conexión: {str(e)}")
 
-# --- ENDPOINTS DINÁMICOS ---
 
-## --- RUTA PARA BORRAR PROYECTOS (Solo el dueño puede) ---
-@app.delete("/api/projects/{project_id}")
-def delete_project(project_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    """Elimina una pista específica del usuario autenticado."""
-    success = crud.delete_user_project(db=db, project_id=project_id, user_id=current_user.id)
-    if not success:
-        raise HTTPException(status_code=404, detail="Proyecto no encontrado o no tienes permiso para borrarlo.")
-    return {"message": "Proyecto eliminado con éxito."}
+# ─── RUTAS DE AUTENTICACIÓN ───────────────────────────────────────────────────
 
-## --- FUNCIÓN SEMILLA PARA LECCIONES ---
-def seed_lessons(db: Session):
-    """Inyecta las lecciones si la tabla de lecciones está vacía."""
-    if db.query(models.Lesson).count() == 0:
-        lecciones_iniciales = [
-            models.Lesson(lesson_number="01", title="Tu primer ritmo básico", hint_code="s('bd sd bd sd').fast(2)"),
-            models.Lesson(lesson_number="02", title="Polirritmos con corchetes", hint_code="s('[bd sn] [hc hc hc]').fast(1.5)"),
-            models.Lesson(lesson_number="03", title="Melodías y Sintetizadores", hint_code="note('c e g c5').s('sawtooth').lpf(800)")
-        ]
-        db.add_all(lecciones_iniciales)
-        db.commit()
-        print("Base de datos inicializada con 3 lecciones de Strudel.")
+@app.post("/api/register", response_model=schemas.User)
+def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_email(db, email=user.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="El email ya está registrado.")
+    return crud.create_user(db, user=user)
+
+@app.post("/api/login")
+def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = crud.get_user_by_email(db, email=form_data.username)
+    if not user or not security.verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email o contraseña incorrectos.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        
+    access_token = security.create_access_token(
+        data={"sub": str(user.id), "username": user.username, "email": user.email}
+    )
+    return {"access_token": access_token, "token_type": "bearer", "user": {"id": user.id, "username": user.username, "email": user.email}}
+
+
+# ─── RUTAS DE LECCIONES ───────────────────────────────────────────────────────
+
+@app.get("/api/lessons/", response_model=list[schemas.Lesson])
+def read_all_lessons(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return crud.get_lessons(db, skip=skip, limit=limit)
 
 @app.get("/api/lessons/{lesson_number}", response_model=schemas.Lesson)
 def read_lesson(lesson_number: str, db: Session = Depends(get_db)):
@@ -155,22 +157,12 @@ def read_lesson(lesson_number: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Lesson not found")
     return lesson
 
-@app.post("/api/users/", response_model=schemas.User)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email ya registrado")
-    return crud.create_user(db=db, user=user)
 
-@app.post("/api/users/{user_id}/projects/", response_model=schemas.Project)
-def create_project_for_user(user_id: int, project: schemas.ProjectCreate, db: Session = Depends(get_db)):
-    return crud.create_user_project(db=db, project=project, user_id=user_id)
+# ─── RUTAS DE PROYECTOS (COMUNIDAD Y PRIVADOS) ────────────────────────────────
 
 @app.get("/api/projects/", response_model=list[schemas.Project])
 def read_all_projects(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """
-    Devuelve todas las pistas de música guardadas en PostgreSQL para la Galería Comunitaria.
-    """
+    """Devuelve todas las pistas para la Galería Comunitaria."""
     return crud.get_projects(db, skip=skip, limit=limit)
 
 @app.get("/api/projects/{project_id}", response_model=schemas.Project)
@@ -182,72 +174,18 @@ def read_project(project_id: int, db: Session = Depends(get_db)):
 
 @app.get("/api/users/{user_id}/projects/", response_model=list[schemas.Project])
 def read_user_projects(user_id: int, db: Session = Depends(get_db)):
-    """
-    Devuelve la lista de proyectos personales para el Dashboard del alumno.
-    """
+    """Devuelve los proyectos de un usuario específico para su Dashboard."""
     return crud.get_user_projects(db, user_id=user_id)
 
-@app.get("/api/lessons/", response_model=list[schemas.Lesson])
-def read_all_lessons(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """Devuelve la lista completa de lecciones del plan de estudios."""
-    return crud.get_lessons(db, skip=skip, limit=limit)
-
-@app.post("/api/register", response_model=schemas.User)
-def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    """Ruta para que nuevos alumnos se registren en la plataforma PAMS."""
-    db_user = crud.get_user_by_email(db, email=user.email)
-    if db_user:
-        raise HTTPException(status_code=400, detail="El email ya está registrado.")
-    return crud.create_user(db, user=user)
-
-@app.post("/api/login")
-def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    """Ruta de Login. Recibe credenciales, valida y devuelve el Token JWT."""
-    # En OAuth2Form, 'username' se mapea al campo que el usuario rellene (usaremos su email)
-    user = crud.get_user_by_email(db, email=form_data.username)
-    
-    if not user or not security.verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email o contraseña incorrectos.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-        
-    # Si todo es correcto, generamos su pase VIP (token JWT) guardando su ID y nombre
-    access_token = security.create_access_token(
-        data={"sub": str(user.id), "username": user.username, "email": user.email}
-    )
-    
-    return {
-        "access_token": access_token, 
-        "token_type": "bearer",
-        "user": {"id": user.id, "username": user.username, "email": user.email}
-    }
-
-# --- DECODIFICADOR DE TOKENS ---
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
-
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    """Desencripta el Token JWT para descubrir qué usuario está haciendo la petición."""
-    try:
-        # Abrimos el token con la misma llave secreta que usamos al crearlo
-        payload = security.jwt.decode(token, security.SECRET_KEY, algorithms=[security.ALGORITHM])
-        user_id: str = payload.get("sub")
-        if user_id is None:
-            raise HTTPException(status_code=401, detail="Credenciales inválidas")
-    except security.JWTError:
-        raise HTTPException(status_code=401, detail="Token inválido o expirado")
-        
-    user = crud.get_user(db, user_id=int(user_id))
-    if user is None:
-        raise HTTPException(status_code=401, detail="Usuario no encontrado en la red")
-    return user
-
-# --- RUTA PARA GUARDAR LA PISTA ---
 @app.post("/api/projects/", response_model=schemas.Project)
 def create_project(project: schemas.ProjectCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    """
-    Ruta protegida. Solo un usuario con Token válido puede guardar una pista.
-    FastAPI inyecta automáticamente al 'current_user' tras validar el Token.
-    """
+    """Guarda una pista verificando el Token JWT."""
     return crud.create_user_project(db=db, project=project, user_id=current_user.id)
+
+@app.delete("/api/projects/{project_id}")
+def delete_project(project_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    """Elimina una pista verificando que pertenece al usuario del Token."""
+    success = crud.delete_user_project(db=db, project_id=project_id, user_id=current_user.id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado o sin permisos.")
+    return {"message": "Proyecto eliminado con éxito."}
