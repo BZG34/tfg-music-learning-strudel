@@ -220,6 +220,7 @@ export default function LiveEditor() {
 
           // Actualiza el estado con los datos reales de la BD
           setLesson({
+            id: lessonData.id,
             number: lessonData.lesson_number,
             title: lessonData.title,
             hint: lessonData.hint_code,
@@ -387,6 +388,35 @@ export default function LiveEditor() {
       setTimeout(() => handleEval(), 50);
     }
   }, [isPlaying, addLog, handleEval]);
+
+  // ── Marcar Lección como Completada ────────────────────────────────────────
+  const handleCompleteLesson = async () => {
+    if (!authenticated) {
+      addLog('warning', 'Necesitas iniciar sesión para guardar tu progreso.');
+      return;
+    }
+
+    try {
+      addLog('system', 'Sincronizando progreso con la academia...');
+      const response = await fetch(`${API_BASE_URL}/api/lessons/${lesson.id}/complete`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        addLog('success', '¡Módulo superado! Progreso actualizado en tu panel.');
+        // Actualizamos visualmente el objetivo para que salga tachado
+        setLesson(prev => ({
+          ...prev,
+          objectives: [{ done: true, text: "Aplica los conceptos usando Strudel" }]
+        }));
+      } else {
+        addLog('error', 'Fallo al sincronizar el progreso.');
+      }
+    } catch (err) {
+      addLog('error', 'Fallo de red al intentar contactar con el servidor.');
+    }
+  };
 
   // ── Guardar proyecto en PostgreSQL ───────────────────────────────────────
   const handleSaveTrack = async () => {
@@ -573,12 +603,26 @@ export default function LiveEditor() {
             )}
           </div>
 
-          {/* Next lesson button */}
+          {/* Botón de Completar Lección */}
           <div className="p-6 bg-surface-container-lowest/50 border-t border-[#00FF41]/5 flex-shrink-0">
-            <button type="button" className="w-full py-3 bg-[#00FF41]/10 border border-[#00FF41]/30 text-[#00FF41] font-label-caps tracking-widest hover:bg-[#00FF41]/20 transition-all flex items-center justify-center gap-2">
-              <span>SIGUIENTE LECCIÓN</span>
-              <span className="material-symbols-outlined text-sm">arrow_forward</span>
-            </button>
+            {!lesson.isProject && !lesson.isNewTrack && (
+              <button 
+                type="button" 
+                onClick={handleCompleteLesson}
+                disabled={lesson.objectives[0]?.done}
+                className={`w-full py-3 border font-label-caps uppercase text-xs tracking-widest font-bold transition-all flex items-center justify-center gap-2 ${
+                  lesson.objectives[0]?.done 
+                    ? 'bg-[#00FF41]/20 border-[#00FF41]/50 text-[#00FF41] cursor-default'
+                    : 'bg-[#00FF41]/10 border-[#00FF41]/30 text-[#00FF41] hover:bg-[#00FF41] hover:text-black cursor-pointer'
+                }`}
+              >
+                {lesson.objectives[0]?.done ? (
+                  <><span>MÓDULO SUPERADO</span><span className="material-symbols-outlined text-sm">check_circle</span></>
+                ) : (
+                  <><span>MARCAR COMO COMPLETADA</span><span className="material-symbols-outlined text-sm">task_alt</span></>
+                )}
+              </button>
+            )}
           </div>
         </section>
 
