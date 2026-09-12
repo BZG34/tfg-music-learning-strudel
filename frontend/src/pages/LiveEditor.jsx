@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { evaluate, hush, initStrudel, samples } from '@strudel/web';
 import '@strudel/webaudio';
@@ -153,9 +153,11 @@ function SpectrumBar({ isPlaying, delay = 0, baseH = 4 }) {
 // ─── Main component ──────────────────────────────────────────────────────────
 export default function LiveEditor() {
   const { lessonId } = useParams(); // <-- Captura el número de la URL
+  const navigate = useNavigate(); // <-- Para redirigir a otra página si es necesario
   const { token, user, authenticated } = useAuth(); // <--- Extraemos el token y el usuario
   // Estado dinámico para la lección
   const [lesson, setLesson] = useState({ number: '...', title: 'Cargando...', objectives: [], hint: '' });
+  const [totalLessons, setTotalLessons] = useState(0);
   const [isPlaying,    setIsPlaying]    = useState(false);
   const [isIniting,    setIsIniting]    = useState(false);
   const [bpm,          setBpm]          = useState(128);
@@ -265,6 +267,14 @@ export default function LiveEditor() {
 
     return () => { isCancelled = true; };
   }, [lessonId, addLog]); // <-- Dependencias intactas, IMPORTANTE: lessonId en las dependencias
+
+  // ── Obtener el total de lecciones dinámicamente ─────────────────────────
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/lessons/`)
+      .then(res => res.json())
+      .then(data => setTotalLessons(data.length))
+      .catch(err => console.error("Error cargando el total de lecciones:", err));
+  }, []);
 
   // ── Sync fetched code into CodeMirror when it changes ───────────────────
   useEffect(() => {
@@ -603,25 +613,41 @@ export default function LiveEditor() {
             )}
           </div>
 
-          {/* Botón de Completar Lección */}
+          {/* Botón de Completar / Siguiente Lección */}
           <div className="p-6 bg-surface-container-lowest/50 border-t border-[#00FF41]/5 flex-shrink-0">
             {!lesson.isProject && !lesson.isNewTrack && (
-              <button 
-                type="button" 
-                onClick={handleCompleteLesson}
-                disabled={lesson.objectives[0]?.done}
-                className={`w-full py-3 border font-label-caps uppercase text-xs tracking-widest font-bold transition-all flex items-center justify-center gap-2 ${
-                  lesson.objectives[0]?.done 
-                    ? 'bg-[#00FF41]/20 border-[#00FF41]/50 text-[#00FF41] cursor-default'
-                    : 'bg-[#00FF41]/10 border-[#00FF41]/30 text-[#00FF41] hover:bg-[#00FF41] hover:text-black cursor-pointer'
-                }`}
-              >
-                {lesson.objectives[0]?.done ? (
-                  <><span>MÓDULO SUPERADO</span><span className="material-symbols-outlined text-sm">check_circle</span></>
-                ) : (
-                  <><span>MARCAR COMO COMPLETADA</span><span className="material-symbols-outlined text-sm">task_alt</span></>
-                )}
-              </button>
+              lesson.objectives[0]?.done ? (
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    const nextId = parseInt(lesson.number) + 1;
+                    // Comparamos con el total REAL de la base de datos
+                    if (nextId > totalLessons) {
+                      navigate('/lessons');
+                    } else {
+                      setLogs([{ id: logIdRef.current++, type: 'system', message: 'Cargando siguiente módulo...', time: now() }]);
+                      navigate(`/editor/${nextId}`);
+                    }
+                  }}
+                  className="w-full py-3 bg-[#00FF41]/20 border border-[#00FF41]/50 text-[#00FF41] hover:bg-[#00FF41] hover:text-black font-label-caps uppercase text-xs tracking-widest font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-[0_0_15px_rgba(0,255,65,0.2)]"
+                >
+                  {/* El texto cambia inteligentemente si estás en la última lección */}
+                  {parseInt(lesson.number) >= totalLessons ? (
+                    <><span>VOLVER A LA ACADEMIA</span><span className="material-symbols-outlined text-sm">school</span></>
+                  ) : (
+                    <><span>SIGUIENTE LECCIÓN</span><span className="material-symbols-outlined text-sm">arrow_forward</span></>
+                  )}
+                </button>
+              ) : (
+                <button 
+                  type="button" 
+                  onClick={handleCompleteLesson}
+                  className="w-full py-3 bg-[#00FF41]/10 border border-[#00FF41]/30 text-[#00FF41] hover:bg-[#00FF41] hover:text-black font-label-caps uppercase text-xs tracking-widest font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <span>MARCAR COMO COMPLETADA</span>
+                  <span className="material-symbols-outlined text-sm">task_alt</span>
+                </button>
+              )
             )}
           </div>
         </section>
