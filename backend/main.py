@@ -189,3 +189,31 @@ def delete_project(project_id: int, db: Session = Depends(get_db), current_user:
     if not success:
         raise HTTPException(status_code=404, detail="Proyecto no encontrado o sin permisos.")
     return {"message": "Proyecto eliminado con éxito."}
+
+# ─── RUTAS DE PROGRESO ACADÉMICO ────────────────────────────────
+
+@app.post("/api/lessons/{lesson_id}/complete")
+def complete_lesson(lesson_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    """Marca una lección como completada para el usuario logueado."""
+    lesson = db.query(models.Lesson).filter(models.Lesson.id == lesson_id).first()
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lección no encontrada")
+    
+    # Si no la ha completado ya, se la añadimos
+    if lesson not in current_user.completed_lessons:
+        current_user.completed_lessons.append(lesson)
+        db.commit()
+        
+    return {"message": "Lección completada con éxito"}
+
+@app.get("/api/users/me/progress")
+def get_user_progress(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    """Devuelve las estadísticas y las IDs de las lecciones completadas."""
+    total_lessons = db.query(models.Lesson).count()
+    completed_ids = [lesson.id for lesson in current_user.completed_lessons]
+    
+    return {
+        "completed_ids": completed_ids,
+        "total_lessons": total_lessons,
+        "completed_count": len(completed_ids)
+    }

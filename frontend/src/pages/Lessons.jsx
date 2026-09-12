@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Header from '../components/Header';
+import { useAuth } from '../context/AuthContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export default function Lessons() {
+    const { authenticated, token } = useAuth();
     const [lessons, setLessons] = useState([]);
+    const [completedIds, setCompletedIds] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -27,6 +30,21 @@ export default function Lessons() {
             }
         };
         fetchLessons();
+
+        // Pide el progreso si está logueado
+        const fetchProgress = async () => {
+            if (!token) return;
+            try {
+                const resp = await fetch(`${API_BASE_URL}/api/users/me/progress`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    setCompletedIds(data.completed_ids); // Guarda la lista de IDs [1, 2, 4...]
+                }
+            } catch (e) {}
+        };
+        fetchProgress();
     }, []);
 
     return (
@@ -64,8 +82,8 @@ export default function Lessons() {
 
                             return (
                                 <div key={lesson.id} className="relative group">
-                                    {/* Nodo de la línea de tiempo */}
-                                    <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-black border-2 border-[#00FF41] group-hover:bg-[#00FF41] transition-colors shadow-[0_0_10px_rgba(0,255,65,0.4)]"></div>
+                                    {/* Nodo inteligente que se ilumina si está completada */}
+                                    <div className={`absolute -left-[31px] top-1 w-4 h-4 rounded-full border-2 transition-colors shadow-[0_0_10px_rgba(0,255,65,0.4)] ${completedIds.includes(lesson.id) ? 'bg-[#00FF41] border-[#00FF41]' : 'bg-black border-[#00FF41] group-hover:bg-[#00FF41]'}`}></div>
 
                                     <div className="bg-[#141416] border border-[#00FF41]/10 p-6 rounded-xl hover:border-[#00FF41]/40 transition-all shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                                         <div>

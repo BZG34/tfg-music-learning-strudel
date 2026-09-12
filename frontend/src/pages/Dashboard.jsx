@@ -10,9 +10,9 @@ export default function Dashboard() {
   
   // Si el usuario existe usamos su alias, si no, ponemos 'Invitado' por seguridad
   const studentName = user?.username || 'Invitado';
-  const [progress] = useState(30);
-  const [completedLessons] = useState(3);
-  const [totalLessons] = useState(10);
+  const [progress, setProgress] = useState(0);
+  const [completedLessons, setCompletedLessons] = useState(0);
+  const [totalLessons, setTotalLessons] = useState(0);
 
   const [myTracks, setMyTracks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -56,6 +56,29 @@ export default function Dashboard() {
       console.error("Fallo de red:", error);
     }
   };
+
+  // ── Cargar Progreso del Estudiante ──
+  useEffect(() => {
+    if (!user?.id || !token) return;
+    
+    const fetchProgress = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/users/me/progress`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setCompletedLessons(data.completed_count);
+          setTotalLessons(data.total_lessons);
+          // Regla de 3 para el porcentaje
+          setProgress(data.total_lessons > 0 ? Math.round((data.completed_count / data.total_lessons) * 100) : 0);
+        }
+      } catch (err) {
+        console.error("Error cargando progreso:", err);
+      }
+    };
+    fetchProgress();
+  }, [user, token]);
 
   return (
     <div className="page-dashboard bg-[#0A0A0B] text-on-background font-body-md min-h-screen selection:bg-primary-container/30 selection:text-primary-container">

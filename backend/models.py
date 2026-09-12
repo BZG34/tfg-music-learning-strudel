@@ -1,6 +1,13 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, Boolean, Table
 from sqlalchemy.orm import relationship
 from database import Base
+
+#TABLA INTERMEDIA PARA EL PROGRESO
+user_completed_lessons = Table(
+    'user_completed_lessons', Base.metadata,
+    Column('user_id', Integer, ForeignKey('users.id'), primary_key=True),
+    Column('lesson_id', Integer, ForeignKey('lessons.id'), primary_key=True)
+)
 
 class User(Base):
     __tablename__ = "users"
@@ -12,6 +19,9 @@ class User(Base):
 
     # Relación: Un usuario puede tener muchos proyectos guardados
     projects = relationship("Project", back_populates="owner")
+
+    # Relación con las lecciones completadas por el usuario
+    completed_lessons = relationship("Lesson", secondary=user_completed_lessons, backref="completed_by")
 
 class Project(Base):
     __tablename__ = "projects"
