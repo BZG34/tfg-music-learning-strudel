@@ -191,8 +191,8 @@ export default function CommunityGallery() {
 				<div className="flex flex-wrap justify-center gap-6 md:gap-8 font-['Space_Grotesk'] text-xs uppercase tracking-widest text-slate-600 mb-6 xl:mb-0">
 				<a className="hover:text-[#00FF41] transition-colors" href="https://strudel.tidalcycles.org/tutorial/" target="_blank" rel="noopener noreferrer">Documentación</a>
 				<a className="hover:text-[#00FF41] transition-colors" href="https://github.com/BZG34/tfg-music-learning-strudel" target="_blank" rel="noopener noreferrer">GitHub</a>
-				<Link className="hover:text-[#00FF41] transition-colors" to="/">Privacidad</Link>
-				<Link className="hover:text-[#00FF41] transition-colors" to="/">Términos</Link>
+				<Link className="hover:text-[#00FF41] transition-colors" to="/privacy">Privacidad</Link>
+				<Link className="hover:text-[#00FF41] transition-colors" to="/terms">Términos</Link>
 				</div>
 				
 				<div className="font-['Space_Grotesk'] text-xs opacity-60 text-slate-500 font-bold text-[#00FF41] text-center xl:text-right">

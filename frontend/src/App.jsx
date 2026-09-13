@@ -9,6 +9,8 @@ import Dashboard from './pages/Dashboard';
 import LiveEditor from './pages/LiveEditor';
 import CommunityGallery from './pages/CommunityGallery';
 import Lessons from './pages/Lessons';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 
 export default function App() {
   return (
@@ -33,6 +35,12 @@ export default function App() {
           
           {/* Ruta de las Lecciones */}
           <Route path="/lessons" element={<ProtectedRoute><Lessons /></ProtectedRoute>} />
+
+          {/* Ruta de la Política de Privacidad */}
+          <Route path="/privacy" element={<Privacy />} />
+
+          {/* Ruta de los Términos y Condiciones */}
+          <Route path="/terms" element={<Terms />} />        
         </Routes>
       </BrowserRouter>
     </AuthProvider>
