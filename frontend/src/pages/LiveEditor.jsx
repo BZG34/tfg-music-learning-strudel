@@ -220,14 +220,41 @@ export default function LiveEditor() {
         const idToLoad = lessonId;
         addLog('system', `Buscando datos del ID ${idToLoad} en PostgreSQL...`);
 
-        // 1. PRIMER INTENTO: Buscar como Lección
-        let response = await fetch(`${API_BASE_URL}/api/lessons/${idToLoad}`);
+        // 1. ¿ES UN PROYECTO? (La URL empieza por 'p-')
+        if (idToLoad.startsWith('p-')) {
+          const projectId = idToLoad.replace('p-', ''); // Le quitamos la 'p-' para buscar el número
+          addLog('system', `Buscando proyecto ${projectId} en la base de datos...`);
+          
+          const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}`);
+          if (response.ok) {
+            const projectData = await response.json();
+            if (isCancelled) return;
+
+            setLesson({
+              isProject: true,
+              number: `Proyecto-${projectData.id}`,
+              owner_username: projectData.owner?.username || `usuario_${projectData.owner_id}`,
+              title: projectData.title,
+              hint: "",
+              objectives: []
+            });
+            setBpm(projectData.bpm || 128);
+            setStarterCode(projectData.strudel_code);
+            addLog('success', 'Pista comunitaria cargada.');
+          } else {
+            throw new Error(`Proyecto no encontrado.`);
+          }
+          return;
+        }
+
+        // 2. SI NO LLEVA 'p-', ES UNA LECCIÓN ACADÉMICA
+        addLog('system', `Buscando lección ${idToLoad} en la base de datos...`);
+        const response = await fetch(`${API_BASE_URL}/api/lessons/${idToLoad}`);
         
         if (response.ok) {
           const lessonData = await response.json();
           if (isCancelled) return;
 
-          // Actualiza el estado con los datos reales de la BD
           setLesson({
             id: lessonData.id,
             number: lessonData.lesson_number,
@@ -238,38 +265,12 @@ export default function LiveEditor() {
           const nextCode = `// Lección ${lessonData.lesson_number} — ${lessonData.title}\n\n${lessonData.hint_code || '// Escribe tu código'}`;
           setStarterCode(nextCode);
           addLog('success', `Lección ${lessonData.lesson_number} cargada correctamente.`);
-          return; // Salimos de la función con éxito
+        } else {
+          throw new Error(`Lección no encontrada.`);
         }
-
-        // 2. SEGUNDO INTENTO: Si no es lección (404), buscar como Proyecto de la Galería
-        response = await fetch(`${API_BASE_URL}/api/projects/${idToLoad}`);
-        if (response.ok) {
-          const projectData = await response.json();
-          if (isCancelled) return;
-
-          // Actualiza el estado con los datos reales de la BD
-          setLesson({
-            isProject: true, // <-- Bandera identificadora
-            number: `P-${projectData.id}`,
-            title: projectData.title,
-            owner_username: projectData.owner?.username || `usuario_${projectData.owner_id}`, // <-- Guardamos el autor del proyecto
-            hint: "",
-            objectives: []
-          });
-          // setBpm(projectData.bpm || 128);
-          //setSwing(projectData.swing !== undefined ? projectData.swing : 25);
-          // setQuantize(projectData.quantize || '1/16');
-          // setMasterVol(projectData.master_volume !== undefined ? projectData.master_volume : 80);
-          setStarterCode(projectData.strudel_code);
-          addLog('success', `Pista de la comunidad cargada y lista para remezclar.`);
-          return; // Salimos con éxito
-        }
-
-        // Si tampoco es proyecto, lanzamos error
-        throw new Error(`HTTP ${response.status}`);
       } catch (err) {
         if (isCancelled) return;
-        addLog('warning', `No se encontró en BD (ID: ${lessonId}): ${err?.message ?? String(err)}`);
+        addLog('warning', `Error cargando datos: ${err?.message ?? String(err)}`);
       }
     };
 
@@ -469,7 +470,8 @@ export default function LiveEditor() {
           'Authorization': `Bearer ${token}` // <--- El pase VIP
         },
         body: JSON.stringify({
-          title: lesson.isNewTrack ? `Composición Libre - ${bpm} BPM` : `Remezcla ${lesson.number}`,
+          // title: lesson.isNewTrack ? `Composición Libre - ${bpm} BPM` : `Remezcla lección ${lesson.number}`,
+          title: lesson.isNewTrack ? `Composición Libre` : `Remezcla lección ${lesson.number}`,
           strudel_code: currentCode
           // bpm: bpm,
           // swing: swing,
@@ -527,7 +529,7 @@ export default function LiveEditor() {
               <div className="p-6">
                 <div className="flex items-center gap-2 mb-6">
                   <span className="px-2 py-1 bg-primary-container/10 text-primary-container font-label-caps text-label-caps border border-primary-container/20">
-                    Lesson {lesson.number}
+                    Lección {lesson.number}
                   </span>
                   <h2 className="font-headline-md text-xl text-on-surface">{lesson.title}</h2>
                 </div>

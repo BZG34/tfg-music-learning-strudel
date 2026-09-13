@@ -139,7 +139,7 @@ export default function CommunityGallery() {
                                         </div>
 
                                         <div className="grid grid-cols-1 gap-3 mt-auto">
-                                            <Link to={`/editor/${track.id}`} className="flex items-center justify-center gap-2 py-3 bg-[#00FF41]/10 border border-[#00FF41]/20 text-[#00FF41] rounded font-['Space_Grotesk'] text-sm font-bold uppercase hover:bg-[#00FF41] hover:text-[#003907] transition-all">
+                                            <Link to={`/editor/p-${track.id}`} className="flex items-center justify-center gap-2 py-3 bg-[#00FF41]/10 border border-[#00FF41]/20 text-[#00FF41] rounded font-['Space_Grotesk'] text-sm font-bold uppercase hover:bg-[#00FF41] hover:text-[#003907] transition-all">
                                                 <span className="material-symbols-outlined text-lg">play_arrow</span> Remix / Escuchar
                                             </Link>
                                         </div>

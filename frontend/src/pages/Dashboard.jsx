@@ -247,7 +247,7 @@ export default function Dashboard() {
                       <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#141416] to-transparent"></div>
                     </div>
                     <div className="mt-auto flex gap-2 w-full">
-                      <Link to={`/editor/${track.id}`} className="flex-1 flex items-center justify-center gap-2 py-2 bg-slate-800/50 hover:bg-[#00FF41]/10 text-slate-300 hover:text-[#00FF41] rounded font-['Space_Grotesk'] text-xs font-bold uppercase transition-all border border-transparent hover:border-[#00FF41]/30">
+                      <Link to={`/editor/p-${track.id}`} className="flex-1 flex items-center justify-center gap-2 py-2 bg-slate-800/50 hover:bg-[#00FF41]/10 text-slate-300 hover:text-[#00FF41] rounded font-['Space_Grotesk'] text-xs font-bold uppercase transition-all border border-transparent hover:border-[#00FF41]/30">
                         <span className="material-symbols-outlined text-sm">edit</span> Editar Pista
                       </Link>
                       <button 
