@@ -5,7 +5,7 @@ from typing import List, Optional
 class ProjectBase(BaseModel):
     title: str                   # Título del proyecto
     strudel_code: str            # Código de Strudel (JSON)
-    # bpm: int = 128               # BPM por defecto
+    bpm: int = 128               # BPM por defecto
     # swing: int = 25              # Porcentaje de swing
     # quantize: str = "1/16"       # Valor de cuantización
     # master_volume: int = 80      # Volumen maestro
