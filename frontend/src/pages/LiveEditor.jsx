@@ -79,16 +79,16 @@ function parseQuickCommand(raw, currentCode, setBpm, setCode, addLog, evalCode) 
   const [name, ...args] = cmd.slice(1).split(' ');
 
   switch (name.toLowerCase()) {
-    case 'bpm': {
-      const val = parseInt(args[0], 10);
-      if (!isNaN(val) && val > 0 && val <= 300) {
-        setBpm(val);
-        addLog('info', `BPM ajustado a ${val}`);
-      } else {
-        addLog('error', 'Uso: /bpm <número entre 1-300>');
-      }
-      return true;
-    }
+    // case 'bpm': {
+    //   const val = parseInt(args[0], 10);
+    //   if (!isNaN(val) && val > 0 && val <= 300) {
+    //     setBpm(val);
+    //     addLog('info', `BPM ajustado a ${val}`);
+    //   } else {
+    //     addLog('error', 'Uso: /bpm <número entre 1-300>');
+    //   }
+    //   return true;
+    // }
     case 'hush': {
       hush();
       addLog('info', 'Audio silenciado');
@@ -101,8 +101,12 @@ function parseQuickCommand(raw, currentCode, setBpm, setCode, addLog, evalCode) 
     case 'clear': {
       return 'clear';
     }
+    // case 'help': {
+    //   addLog('info', 'Comandos disponibles: /bpm <n>, /hush, /eval, /clear, /help');
+    //   return true;
+    // }
     case 'help': {
-      addLog('info', 'Comandos disponibles: /bpm <n>, /hush, /eval, /clear, /help');
+      addLog('info', 'Comandos disponibles: /hush, /eval, /clear, /help');
       return true;
     }
     default: {
@@ -161,6 +165,9 @@ export default function LiveEditor() {
   const [isPlaying,    setIsPlaying]    = useState(false);
   const [isIniting,    setIsIniting]    = useState(false);
   const [bpm,          setBpm]          = useState(128);
+  const [swing, setSwing]         = useState(25);
+  const [quantize, setQuantize]   = useState('1/16');
+  const [masterVol, setMasterVol] = useState(80);
   const [starterCode,  setStarterCode]   = useState(DEFAULT_CODE);
   const [logs,         setLogs]         = useState([
     { id: 0, type: 'system', message: 'PAMS kernel v1.0.4 — motor listo. Pulsa ▶ o Ctrl+Enter para evaluar.', time: now() },
@@ -249,7 +256,10 @@ export default function LiveEditor() {
             hint: "",
             objectives: []
           });
-          setBpm(projectData.bpm || 128);
+          // setBpm(projectData.bpm || 128);
+          //setSwing(projectData.swing !== undefined ? projectData.swing : 25);
+          // setQuantize(projectData.quantize || '1/16');
+          // setMasterVol(projectData.master_volume !== undefined ? projectData.master_volume : 80);
           setStarterCode(projectData.strudel_code);
           addLog('success', `Pista de la comunidad cargada y lista para remezclar.`);
           return; // Salimos con éxito
@@ -358,7 +368,18 @@ export default function LiveEditor() {
         strudelInitedRef.current = true; // Marcamos como descargado
       }
 
-      addLog('system', `Evaluando patrón @ ${bpm} BPM…`);
+      {/*
+      // ── BPM Dinamico  ──
+      let finalCode = code;
+      // Si el código del usuario NO contiene su propia orden de tempo,
+      // inyectamos invisiblemente la orden cpm() con el valor del slider
+      if (!finalCode.includes('cpm(') && !finalCode.includes('cps(')) {
+        finalCode = `cpm(${bpm})\n` + finalCode;
+      }
+      */}
+
+      // addLog('system', `Evaluando patrón @ ${bpm} BPM…`);
+      addLog('system', `Evaluando patrón…`);
       await evaluate(code);
       setIsPlaying(true);
       addLog('success', 'Patrón activo ✓');
@@ -449,8 +470,11 @@ export default function LiveEditor() {
         },
         body: JSON.stringify({
           title: lesson.isNewTrack ? `Composición Libre - ${bpm} BPM` : `Remezcla ${lesson.number}`,
-          strudel_code: currentCode,
-          bpm: bpm
+          strudel_code: currentCode
+          // bpm: bpm,
+          // swing: swing,
+          // quantize: quantize,
+          // master_volume: masterVol
         })
       });
 
@@ -704,7 +728,8 @@ export default function LiveEditor() {
             <span className="text-[#00FF41] font-mono text-sm flex-shrink-0">$</span>
             <input
               className="bg-transparent border-none text-xs w-full text-slate-300 placeholder:text-slate-600 focus:outline-none font-mono"
-              placeholder="Atajos — /bpm 140 · /hush · /eval · /help"
+              // placeholder="Atajos — /bpm 140 · /hush · /eval · /help"
+              placeholder="Atajos — /hush · /eval · /help"
               type="text"
               value={quickCmd}
               onChange={e => setQuickCmd(e.target.value)}
@@ -739,20 +764,20 @@ export default function LiveEditor() {
           {/* Playback controls */}
           <div className="p-6 border-b border-[#00FF41]/10 flex-shrink-0">
             <div className="flex items-center justify-between">
-              <div className="flex gap-3">
+              {/* Contenedor de botones ocupando todo el ancho */}
+              <div className="flex gap-4 w-full">
                 {/* Play / Eval */}
                 <button
                   type="button"
                   onClick={handleEval}
                   disabled={isIniting}
                   title="Evaluar (Ctrl+Enter)"
-                  className={`w-12 h-12 flex items-center justify-center rounded-full transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-wait ${
-                    isPlaying
+                  className={`flex-1 h-12 flex items-center justify-center rounded-lg transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-wait ${                    isPlaying
                       ? 'bg-emerald-500 text-black shadow-[0_0_15px_rgba(52,211,153,0.4)]'
                       : 'bg-[#00FF41] text-black shadow-[0_0_15px_rgba(0,255,65,0.4)]'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                     {isIniting ? 'hourglass_top' : 'play_arrow'}
                   </span>
                 </button>
@@ -761,14 +786,14 @@ export default function LiveEditor() {
                   type="button"
                   onClick={handleStop}
                   title="Detener (Ctrl+.)"
-                  className="w-12 h-12 flex items-center justify-center border border-slate-700 text-slate-300 rounded-full hover:bg-slate-800 active:scale-95 transition-all cursor-pointer"
+                  className="flex-1 h-12 flex items-center justify-center border-2 border-slate-700 text-slate-300 rounded-lg hover:bg-slate-800 hover:text-white hover:border-slate-500 active:scale-95 transition-all cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-2xl">stop</span>
+                  <span className="material-symbols-outlined text-3xl">stop</span>
                 </button>
               </div>
 
               {/* BPM display */}
-              <div className="text-right font-['Space_Grotesk']">
+              {/* <div className="text-right font-['Space_Grotesk']">
                 <div className="text-[10px] text-slate-500 uppercase mb-1 tracking-widest">Tempo</div>
                 <div className="flex items-center gap-1 justify-end">
                   <button type="button" onClick={() => handleBpmChange(Math.max(40, bpm - 1))} className="text-slate-500 hover:text-white w-5 text-lg leading-none cursor-pointer select-none">−</button>
@@ -776,11 +801,11 @@ export default function LiveEditor() {
                   <button type="button" onClick={() => handleBpmChange(Math.min(300, bpm + 1))} className="text-slate-500 hover:text-white w-5 text-lg leading-none cursor-pointer select-none">+</button>
                   <span className="text-xs text-[#00FF41] ml-1">BPM</span>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* BPM slider */}
-            <div className="mt-4">
+            {/* <div className="mt-4">
               <input
                 type="range"
                 min={40}
@@ -792,30 +817,53 @@ export default function LiveEditor() {
               <div className="flex justify-between text-[10px] font-mono text-slate-600 mt-1">
                 <span>40</span><span>120</span><span>200</span>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Effects grid */}
           <div className="p-6 flex-1">
-            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4 font-['Space_Grotesk']">Parámetros rápidos</h3>
+            {/* <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4 font-['Space_Grotesk']">Parámetros rápidos</h3> */}
             <div className="grid grid-cols-2 gap-3">
-              {/* Swing */}
-              <div className="bg-[#0A0A0B] p-3 border border-slate-800 rounded col-span-2">
+              
+              {/* Swing Slider */}
+              {/* <div className="bg-[#0A0A0B] p-3 border border-slate-800 rounded col-span-2 group">
                 <div className="flex justify-between text-[10px] text-slate-500 uppercase mb-2 font-['Space_Grotesk']">
-                  <span>Swing</span><span className="text-[#00FF41]">25%</span>
+                  <span>Swing</span><span className="text-[#00FF41]">{swing}%</span>
                 </div>
-                <div className="h-1 bg-slate-800 w-full rounded-full overflow-hidden">
-                  <div className="h-full bg-[#00FF41] w-1/4 transition-all"></div>
-                </div>
-              </div>
-              <div className="bg-[#0A0A0B] p-3 border border-slate-800 rounded">
+                <input
+                  type="range" min="0" max="100" value={swing}
+                  onChange={(e) => setSwing(Number(e.target.value))}
+                  className="w-full accent-[#00FF41] h-1 bg-slate-800 rounded-full appearance-none cursor-pointer"
+                />
+              </div> */}
+
+              {/* Quantize Select */}
+              {/* <div className="bg-[#0A0A0B] p-3 border border-slate-800 rounded">
                 <div className="text-[10px] text-slate-500 uppercase mb-1 font-['Space_Grotesk']">Quantize</div>
-                <div className="text-xs text-cyan-400 font-bold">1/16 Grid</div>
-              </div>
-              <div className="bg-[#0A0A0B] p-3 border border-slate-800 rounded">
-                <div className="text-[10px] text-slate-500 uppercase mb-1 font-['Space_Grotesk']">Master Vol</div>
-                <div className="text-xs text-[#00FF41] font-bold">0 dB</div>
-              </div>
+                <select 
+                  value={quantize} 
+                  onChange={(e) => setQuantize(e.target.value)}
+                  className="bg-transparent text-xs text-cyan-400 font-bold border-none outline-none cursor-pointer w-full appearance-none"
+                >
+                  <option value="1/4">1/4 Grid</option>
+                  <option value="1/8">1/8 Grid</option>
+                  <option value="1/16">1/16 Grid</option>
+                  <option value="1/32">1/32 Grid</option>
+                </select>
+              </div> */}
+
+              {/* Master Vol Slider */}
+              {/* <div className="bg-[#0A0A0B] p-3 border border-slate-800 rounded">
+                <div className="flex justify-between items-center mb-1">
+                  <div className="text-[10px] text-slate-500 uppercase font-['Space_Grotesk']">Master Vol</div>
+                  <div className="text-[10px] text-[#00FF41] font-bold">{masterVol}%</div>
+                </div>
+                <input
+                  type="range" min="0" max="100" value={masterVol}
+                  onChange={(e) => setMasterVol(Number(e.target.value))}
+                  className="w-full accent-[#00FF41] h-1 bg-slate-800 rounded-full appearance-none cursor-pointer mt-2"
+                />
+              </div> */}
             </div>
 
             {/* Save track button */}

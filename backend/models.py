@@ -30,6 +30,11 @@ class Project(Base):
     title = Column(String, index=True, nullable=False)
     strudel_code = Column(Text, nullable=False)
     bpm = Column(Integer, default=128)
+
+    # Mwetadatos del editor de Strudel
+    # swing = Column(Integer, default=25)
+    # quantize = Column(String, default="1/16")
+    # master_volume = Column(Integer, default=80)
     
     # Clave foránea que apunta a PostgreSQL indicando de quién es este proyecto
     owner_id = Column(Integer, ForeignKey("users.id"))
