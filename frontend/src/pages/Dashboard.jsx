@@ -7,7 +7,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function Dashboard() {
   const { user, token } = useAuth(); // Extraemos el usuario real logueado y el token
-  
+
   // Si el usuario existe usamos su alias, si no, ponemos 'Invitado' por seguridad
   const studentName = user?.username || 'Invitado';
   const [progress, setProgress] = useState(0);
@@ -17,6 +17,9 @@ export default function Dashboard() {
   const [myTracks, setMyTracks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Estados para la sugerencia de próxima lección
+  const [nextLesson, setNextLesson] = useState(null);
+
   useEffect(() => {
     const fetchMyTracks = async () => {
       if (!user?.id) return; // Si no hay usuario, no pedimos nada
@@ -25,7 +28,9 @@ export default function Dashboard() {
         const response = await fetch(`${API_BASE_URL}/api/users/${user.id}/projects/`);
         if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
         const data = await response.json();
-        setMyTracks(data);
+        // Ordenamos las pistas para que la más reciente salga primero
+        const sortedTracks = data.sort((a, b) => b.id - a.id);
+        setMyTracks(sortedTracks);
       } catch (error) {
         console.error("Error al cargar los proyectos personales:", error);
       } finally {
@@ -35,11 +40,11 @@ export default function Dashboard() {
     fetchMyTracks();
   }, [user]); // Se ejecuta cada vez que el usuario cambie o se loguee
 
-  // ── Función para borrar una pista ──
+  // Función para borrar una pista
   const handleDeleteTrack = async (projectId) => {
     // Pedimos confirmación al usuario (súper importante para evitar accidentes)
     if (!window.confirm("¿Estás seguro de que quieres borrar esta pista para siempre?")) return;
-    
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}`, {
         method: 'DELETE',
@@ -60,21 +65,41 @@ export default function Dashboard() {
   // ── Cargar Progreso del Estudiante ──
   useEffect(() => {
     if (!user?.id || !token) return;
-    
+
     const fetchProgress = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/users/me/progress`, {
+        // Pedimos el progreso del usuario
+        const progressRes = await fetch(`${API_BASE_URL}/api/users/me/progress`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (response.ok) {
-          const data = await response.json();
-          setCompletedLessons(data.completed_count);
-          setTotalLessons(data.total_lessons);
-          // Regla de 3 para el porcentaje
-          setProgress(data.total_lessons > 0 ? Math.round((data.completed_count / data.total_lessons) * 100) : 0);
+
+        // Pedimos todas las lecciones del temario
+        const lessonsRes = await fetch(`${API_BASE_URL}/api/lessons/`);
+
+        if (progressRes.ok && lessonsRes.ok) {
+          const progressData = await progressRes.json();
+          let allLessons = await lessonsRes.json();
+
+          setCompletedLessons(progressData.completed_count);
+          setTotalLessons(progressData.total_lessons);
+          setProgress(progressData.total_lessons > 0 ? Math.round((progressData.completed_count / progressData.total_lessons) * 100) : 0);
+
+          // LÓGICA INTELIGENTE: Encontrar la próxima lección
+          // - Ordenamos las lecciones por número (1, 2, 3...)
+          allLessons.sort((a, b) => parseInt(a.lesson_number) - parseInt(b.lesson_number));
+
+          // - Buscamos la primera lección cuyo ID NO esté en la lista de completadas
+          const next = allLessons.find(lesson => !progressData.completed_ids.includes(lesson.id));
+
+          if (next) {
+            setNextLesson(next);
+          } else {
+            // Si no hay "next", significa que ha completado todo el curso
+            setNextLesson({ isGraduated: true });
+          }
         }
       } catch (err) {
-        console.error("Error cargando progreso:", err);
+        console.error("Error calculando sugerencias:", err);
       }
     };
     fetchProgress();
@@ -127,6 +152,7 @@ export default function Dashboard() {
       */}
 
       <main className="pt-24 px-8 pb-12">
+        {/* Área de lecciones completadas */}
         <div className="max-w-6xl mx-auto space-y-8">
           <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
@@ -145,81 +171,92 @@ export default function Dashboard() {
             </div>
           </section>
 
+          {/* Área de sugerencias y actividades recientes */}
           <div className="grid grid-cols-12 gap-6">
-            <div className="col-span-12 lg:col-span-8 bg-[#141416] rounded-xl border border-[#00FF41]/10 overflow-hidden group hover:border-[#00FF41]/40 transition-all duration-300">
+
+            {/* Próxima lección recomendada */}
+            <div className="col-span-12 lg:col-span-8 bg-[#141416] rounded-xl border border-[#00FF41]/10 overflow-hidden group hover:border-[#00FF41]/40 transition-all duration-300 flex flex-col justify-between">
               <div className="relative h-64 overflow-hidden bg-black flex items-center justify-center">
                 <img alt="Cyberpunk workstation" className="w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#141416] via-transparent to-transparent"></div>
                 <div className="absolute bottom-6 left-8">
-                  <span className="text-[10px] font-mono bg-[#00FF41]/10 text-[#00FF41] border border-[#00FF41]/20 px-2 py-1 uppercase mb-3 inline-block">Module 04 // Oscillators</span>
-                  <h2 className="text-2xl font-bold font-['Space_Grotesk'] text-white">Additive Synthesis Fundamentals</h2>
+                  {nextLesson?.isGraduated ? (
+                    <>
+                      <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-1 uppercase mb-3 inline-block">CURSO COMPLETADO</span>
+                      <h2 className="text-2xl font-bold font-['Space_Grotesk'] text-white">¡Enhorabuena, Codificador Sonoro!</h2>
+                    </>
+                  ) : nextLesson ? (
+                    <>
+                      <span className="text-[10px] font-mono bg-[#00FF41]/10 text-[#00FF41] border border-[#00FF41]/20 px-2 py-1 uppercase mb-3 inline-block">SIGUIENTE MÓDULO SUGERIDO</span>
+                      <h2 className="text-2xl font-bold font-['Space_Grotesk'] text-white">Módulo {nextLesson.lesson_number} // {nextLesson.title}</h2>
+                    </>
+                  ) : (
+                    <span className="text-slate-400 font-mono text-sm animate-pulse">Analizando plan de estudios...</span>
+                  )}
                 </div>
               </div>
               <div className="p-8 flex items-center justify-between">
                 <div className="space-y-2">
-                  <p className="text-slate-400 max-w-md">Learn how to layer multiple sine waves to create complex harmonic structures using the <code className="font-mono text-[#00FF41]">stack()</code> function.</p>
-                  <div className="flex gap-4 items-center pt-2">
-                    <span className="flex items-center gap-1 text-xs text-slate-500 font-mono"><span className="material-symbols-outlined text-sm">schedule</span> 15 mins</span>
-                    <span className="flex items-center gap-1 text-xs text-slate-500 font-mono"><span className="material-symbols-outlined text-sm">equalizer</span> Intermediate</span>
-                  </div>
+                  {nextLesson?.isGraduated ? (
+                    <p className="text-slate-400 max-w-md">Has dominado todos los módulos académicos. Ahora el límite es tu imaginación. Crea composiciones libres y compártelas con el mundo.</p>
+                  ) : (
+                    <p className="text-slate-400 max-w-md">Continúa tu aprendizaje de Strudel. Haz clic en el botón para cargar la lección en tu editor en vivo.</p>
+                  )}
                 </div>
-                <Link to="/editor" className="bg-[#00FF41] text-[#003907] h-16 w-16 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(0,255,65,0.3)]">
-                  <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
-                </Link>
+
+                {nextLesson?.isGraduated ? (
+                  <Link to="/editor" title="Composición Libre" className="bg-emerald-500 text-black h-16 w-16 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(52,211,153,0.3)]">
+                    <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>music_note</span>
+                  </Link>
+                ) : nextLesson ? (
+                  <Link to={`/editor/${nextLesson.lesson_number}`} title="Iniciar Lección" className="bg-[#00FF41] text-[#003907] h-16 w-16 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(0,255,65,0.3)]">
+                    <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+                  </Link>
+                ) : null}
               </div>
             </div>
 
+            {/* Actividad reciente (Últimas pistas guardadas) */}
             <div className="col-span-12 lg:col-span-4">
-              <div className="bg-[#141416] p-6 rounded-xl border border-[#00FF41]/10 h-full flex flex-col justify-between">
-                <div>
-                  <h3 className="text-xs font-bold text-white uppercase mb-6 border-b border-[#00FF41]/10 pb-2 flex items-center justify-between font-['Space_Grotesk'] tracking-widest">
-                    Recent Activity <span className="material-symbols-outlined text-sm">history</span>
-                  </h3>
-                  <div className="space-y-6">
-                    <div className="flex gap-4">
-                      <div className="w-1 bg-[#00FF41] rounded-full"></div>
-                      <div>
-                        <p className="text-xs text-slate-500 font-mono">Today, 14:20</p>
-                        <p className="text-sm font-medium">Completed: <span className="text-[#00FF41]">Euclidean Rhythms</span></p>
+              <div className="bg-[#141416] p-6 rounded-xl border border-[#00FF41]/10 h-full flex flex-col">
+                <h3 className="text-xs font-bold text-white uppercase mb-6 border-b border-[#00FF41]/10 pb-2 flex items-center justify-between font-['Space_Grotesk'] tracking-widest">
+                  Actividad Reciente <span className="material-symbols-outlined text-sm">history</span>
+                </h3>
+
+                <div className="space-y-6 flex-grow overflow-y-auto max-h-64 pr-2">
+                  {myTracks.length === 0 ? (
+                    <p className="text-xs text-slate-500 font-mono text-center mt-10">Sin actividad reciente.</p>
+                  ) : (
+                    myTracks.slice(0, 4).map((track, index) => (
+                      <div key={track.id} className="flex gap-4">
+                        <div className={`w-1 rounded-full ${index === 0 ? 'bg-[#00FF41] shadow-[0_0_10px_rgba(0,255,65,0.5)]' : 'bg-slate-700'}`}></div>
+                        <div>
+                          <p className="text-[10px] text-slate-500 font-mono uppercase">
+                            {index === 0 ? 'ÚLTIMA COMPOSICIÓN' : 'GUARDADO'}
+                          </p>
+                          <p className="text-sm font-medium text-slate-300">Pista: <span className={index === 0 ? "text-[#00FF41]" : "text-white"}>{track.title}</span></p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex gap-4">
-                      <div className="w-1 bg-cyan-400 rounded-full"></div>
-                      <div>
-                        <p className="text-xs text-slate-500 font-mono">Yesterday, 18:45</p>
-                        <p className="text-sm font-medium">Saved project: <span className="text-cyan-400">Acid-Bassline-v2</span></p>
-                      </div>
-                    </div>
-                  </div>
+                    ))
+                  )}
                 </div>
-                {/*
-                <div className="pt-6 border-t border-[#00FF41]/5 mt-6">
-                  <div className="flex justify-between text-xs font-mono text-slate-400 mb-2">
-                    <span>Racha Actual</span>
-                    <span className="text-[#00FF41]">4 Días</span>
-                  </div>
-                  <div className="flex gap-1">
-                    <div className="h-1 flex-1 bg-[#00FF41]"></div>
-                    <div className="h-1 flex-1 bg-[#00FF41]"></div>
-                    <div className="h-1 flex-1 bg-[#00FF41]"></div>
-                    <div className="h-1 flex-1 bg-[#00FF41]"></div>
-                    <div className="h-1 flex-1 bg-slate-800"></div>
-                    <div className="h-1 flex-1 bg-slate-800"></div>
-                    <div className="h-1 flex-1 bg-slate-800"></div>
-                  </div>
+
+                <div className="pt-6 border-t border-[#00FF41]/10 mt-4 text-center">
+                  <Link to="/editor" className="text-xs font-mono text-[#00FF41] hover:underline">
+                    + Nueva Composición Libre
+                  </Link>
                 </div>
-                */}
               </div>
             </div>
           </div>
 
-          {/* ─── MIS PISTAS GUARDADAS DESDE POSTGRESQL ─── */}
+          {/* Mis pistas guardadas */}
           <section className="pt-8">
             <div className="flex items-center justify-between mb-6 border-b border-[#00FF41]/10 pb-2">
               <h2 className="text-xl font-bold font-['Space_Grotesk'] tracking-widest uppercase">Mis Pistas Guardadas</h2>
               <span className="text-[#00FF41] font-mono text-xs">{myTracks.length} PISTAS</span>
             </div>
-            
+
             {isLoading ? (
               <div className="py-12 flex flex-col items-center justify-center text-slate-500 font-mono">
                 <span className="material-symbols-outlined animate-spin text-4xl mb-4 text-[#00FF41]">autorenew</span>
@@ -250,7 +287,7 @@ export default function Dashboard() {
                       <Link to={`/editor/p-${track.id}`} className="flex-1 flex items-center justify-center gap-2 py-2 bg-slate-800/50 hover:bg-[#00FF41]/10 text-slate-300 hover:text-[#00FF41] rounded font-['Space_Grotesk'] text-xs font-bold uppercase transition-all border border-transparent hover:border-[#00FF41]/30">
                         <span className="material-symbols-outlined text-sm">edit</span> Editar Pista
                       </Link>
-                      <button 
+                      <button
                         onClick={() => handleDeleteTrack(track.id)}
                         title="Borrar Pista"
                         className="w-10 flex items-center justify-center bg-slate-800/50 hover:bg-red-500/10 text-slate-500 hover:text-red-400 rounded transition-all border border-transparent hover:border-red-500/30"
@@ -271,14 +308,14 @@ export default function Dashboard() {
         <div className="font-['Space_Grotesk'] font-bold text-[#00FF41] text-lg mb-6 xl:mb-0 text-center xl:text-left">
           PAMS <span className="opacity-50 font-normal ml-2 block sm:inline-block mt-1 sm:mt-0">// ¿Quién dijo que programar no es divertido?</span>
         </div>
-        
+
         <div className="flex flex-wrap justify-center gap-6 md:gap-8 font-['Space_Grotesk'] text-xs uppercase tracking-widest text-slate-600 mb-6 xl:mb-0">
           <a className="hover:text-[#00FF41] transition-colors" href="https://strudel.tidalcycles.org/tutorial/" target="_blank" rel="noopener noreferrer">Documentación</a>
           <a className="hover:text-[#00FF41] transition-colors" href="https://github.com/BZG34/tfg-music-learning-strudel" target="_blank" rel="noopener noreferrer">GitHub</a>
           <Link className="hover:text-[#00FF41] transition-colors" to="/privacy">Privacidad</Link>
           <Link className="hover:text-[#00FF41] transition-colors" to="/terms">Términos</Link>
         </div>
-        
+
         <div className="font-['Space_Grotesk'] text-xs opacity-60 text-slate-500 font-bold text-[#00FF41] text-center xl:text-right">
           © 2026 <strong>PAMS</strong>. Código abierto bajo licencia <strong><a className="hover:underline" href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener noreferrer">AGPL-3.0</a></strong>. Ver <strong><a className="hover:underline" href="https://github.com/BZG34/tfg-music-learning-strudel" target="_blank" rel="noopener noreferrer">Código Fuente</a></strong>.
         </div>
