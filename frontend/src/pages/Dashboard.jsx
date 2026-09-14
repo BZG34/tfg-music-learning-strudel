@@ -157,7 +157,7 @@ export default function Dashboard() {
           <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               <span className="text-xs font-bold text-[#00FF41] uppercase mb-2 block tracking-widest font-['Space_Grotesk']">Area de Trabajo del Estudiante</span>
-              <h1 className="text-4xl font-black font-['Space_Grotesk']">Bienvenido de nuevo, {studentName}.</h1>
+              <h1 className="text-4xl font-black font-['Space_Grotesk']">Bienvenido de nuevo, {studentName}</h1>
             </div>
             <div className="bg-[#141416] p-6 border border-[#00FF41]/10 rounded-xl min-w-[280px]">
               <div className="flex justify-between items-center mb-2">
@@ -264,9 +264,9 @@ export default function Dashboard() {
               </div>
             ) : myTracks.length === 0 ? (
               <div className="py-12 text-center text-slate-500 font-mono border border-dashed border-[#00FF41]/20 rounded-xl bg-[#141416]">
-                <p>Aún no has guardado ninguna pista. ¡Ve al Live Editor y crea tu primer beat!</p>
+                <p>Aún no has guardado ninguna pista. ¡Ve al Editor en Vivo y crea tu primer beat!</p>
                 <Link to="/editor" className="mt-4 inline-block bg-[#00FF41]/10 text-[#00FF41] px-4 py-2 rounded hover:bg-[#00FF41]/20 transition-colors uppercase font-bold text-xs tracking-widest">
-                  Abrir Live Editor
+                  Abrir Editor en Vivo
                 </Link>
               </div>
             ) : (

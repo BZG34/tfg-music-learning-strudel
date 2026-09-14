@@ -692,7 +692,7 @@ export default function LiveEditor() {
               <div className="flex items-center gap-2">
                 <span className={`w-2 h-2 rounded-full transition-colors ${isPlaying ? 'bg-[#00FF41] animate-pulse' : isIniting ? 'bg-amber-500 animate-pulse' : 'bg-slate-600'}`}></span>
                 <span className="text-[10px] text-slate-400 uppercase font-mono">
-                  {isPlaying ? 'Engine Active' : isIniting ? 'Initializing…' : 'Engine Ready'}
+                  {isPlaying ? 'Motor Activo' : isIniting ? 'Inicializando…' : 'Motor Listo'}
                 </span>
               </div>
             </div>
