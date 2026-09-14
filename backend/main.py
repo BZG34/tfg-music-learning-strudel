@@ -217,3 +217,27 @@ def get_user_progress(db: Session = Depends(get_db), current_user: models.User =
         "total_lessons": total_lessons,
         "completed_count": len(completed_ids)
     }
+
+# ─── RUTA PARA BORRAR LA CUENTA DEL USUARIO ────────────────────────────────
+
+@app.delete("/api/users/me")
+def delete_user_account(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    """Elimina la cuenta del usuario actual y TODO su rastro en la base de datos."""
+    
+    try:
+        # 1. Borrar todos los proyectos (canciones) que le pertenecen
+        db.query(models.Project).filter(models.Project.owner_id == current_user.id).delete()
+        
+        # 2. Desvincular todo su progreso académico (limpia la tabla intermedia)
+        current_user.completed_lessons = []
+        
+        # 3. Borrar al usuario del sistema
+        db.delete(current_user)
+        
+        # 4. Guardar los cambios
+        db.commit()
+        return {"message": "Cuenta y datos eliminados para siempre."}
+        
+    except Exception as e:
+        db.rollback() # Si algo falla, cancelamos la destrucción por seguridad
+        raise HTTPException(status_code=500, detail="Error interno al borrar la cuenta")

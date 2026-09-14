@@ -1,11 +1,56 @@
-import { Link, useLocation } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function Header({ isEditor = false }) {
-    const { user, authenticated, logout } = useAuth();
+    const { user, authenticated, logout, token } = useAuth();
     const location = useLocation();
+    const navigate = useNavigate();
 
-    // Función auxiliar para marcar en verde la página donde estamos metidos
+    // Estados y Referencias para el menú desplegable del Avatar
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const menuRef = useRef(null);
+
+    // Cierra el menú automáticamente si el usuario hace clic fuera de él
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setIsMenuOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    // Lógica para eliminar la cuenta del usuario
+    const handleDeleteAccount = async () => {
+        const confirm1 = window.confirm("⚠️ ATENCIÓN: ¿Estás seguro de que quieres eliminar tu cuenta?");
+        if (!confirm1) return;
+        
+        const confirm2 = window.confirm("Esta acción es IRREVERSIBLE. Se borrarán todas tus pistas y tu progreso académico para siempre. ¿Confirmas la destrucción?");
+        if (!confirm2) return;
+
+        try {
+            const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const response = await fetch(`${API_BASE_URL}/api/users/me`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                logout(); // Limpiamos la sesión del navegador
+                navigate('/'); // Expulsamos al usuario a la Landing Page
+                alert("Tu cuenta y todos tus datos han sido eliminados correctamente de la plataforma.");
+            } else {
+                alert("Error al intentar borrar la cuenta. Contacte con un administrador.");
+            }
+        } catch (error) {
+            console.error("Fallo de red:", error);
+            alert("Error de conexión al intentar borrar la cuenta.");
+        }
+    };
+
+    // Función auxiliar para marcar en verde la página donde el usuario se encuentra
     const linkClass = (path) => {
         return location.pathname === path
             ? "text-[#00FF41] border-b-2 border-[#00FF41] pb-1 font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-sm"
@@ -46,53 +91,59 @@ export default function Header({ isEditor = false }) {
 
                 {/* DERECHA: Botones de estado e Inicio/Cierre de Sesión */}
                 <div className="flex-1 flex items-center justify-end gap-4">
-                    {/* Prueba, quitar. Si estamos en el editor, metemos sus widgets extra
-                    {isEditor && (
-                        <>
-                            <div className="hidden xl:flex items-center bg-[#141416] border border-[#00FF41]/20 px-3 py-1.5 rounded-lg">
-                                <span className="material-symbols-outlined text-[#00FF41] mr-2 text-sm">
-                                    terminal
-                                </span>
-                                <span className="font-mono text-slate-400 text-xs">
-                                    res_kernel_v1.0.4
-                                </span>
-                            </div>
-                            <div className="hidden 2xl:flex items-center gap-1 text-[10px] font-mono text-slate-600 mr-2">
-                                <kbd className="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-500">
-                                    Ctrl
-                                </kbd>
-                                <span>+</span>
-                                <kbd className="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-500">
-                                    Enter
-                                </kbd>
-                            </div>
-                        </>
-                    )}
-                    */}
-
-                    {/* Icono de acceso rápido a Composición Libre */}
-                    {/*
-                    <Link
-                        to="/editor"
-                        aria-label="Nueva Pista"
-                        className="material-symbols-outlined text-[#00FF41] hover:bg-[#00FF41]/5 p-2 rounded transition-all active:scale-95"
-                    >
-                        terminal
-                    </Link>
-                    */}
+                    
                     <Link to="/editor" className="bg-[#00FF41] text-[#003907] font-bold py-1.5 px-4 rounded uppercase text-[10px] tracking-widest hover:brightness-110 active:scale-95 transition-all whitespace-nowrap">
-                    Nueva Pista
+                        Nueva Pista
                     </Link>
 
-                    {/* BOTÓN INTELIGENTE: Iniciar o Cerrar Sesión */}
+                    {/* Botones de usuario (Borrar Cuenta + Cerrar Sesión) */}
                     {authenticated ? (
-                        <button
-                            type="button"
-                            onClick={logout}
-                            className="text-[10px] font-mono text-red-400 border border-red-500/30 px-3 py-1.5 rounded hover:bg-red-500/10 transition-colors uppercase tracking-widest"
-                        >
-                            Cerrar Sesión
-                        </button>
+                        // Contenido del menú desplegable del Avatar
+                        <div className="relative" ref={menuRef}>
+                            {/* El Avatar ahora es un botón que abre/cierra el menú */}
+                            <button
+                                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                className="w-8 h-8 rounded-full border border-[#00FF41]/50 bg-slate-800 overflow-hidden flex-shrink-0 flex items-center justify-center font-mono text-xs text-[#00FF41] uppercase font-bold hover:bg-[#00FF41]/10 hover:shadow-[0_0_10px_rgba(0,255,65,0.3)] transition-all cursor-pointer"
+                            >
+                                {user?.username?.slice(0, 2)}
+                            </button>
+
+                            {/* Menu desplegable */}
+                            {isMenuOpen && (
+                                <div className="absolute right-0 mt-3 w-56 bg-[#0F0F11] border border-[#00FF41]/20 rounded-lg shadow-2xl overflow-hidden flex flex-col z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                                    
+                                    {/* Información del usuario */}
+                                    <div className="px-4 py-3 border-b border-[#00FF41]/10 bg-[#141416]">
+                                        <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest mb-1">Conectado como</p>
+                                        <p className="text-sm font-bold text-[#00FF41] font-['Space_Grotesk'] truncate">@{user?.username}</p>
+                                    </div>
+                                    
+                                    {/* Botón Cerrar Sesión */}
+                                    <button
+                                        onClick={() => {
+                                            setIsMenuOpen(false);
+                                            logout();
+                                        }}
+                                        className="flex items-center gap-3 px-4 py-3 text-xs font-mono text-slate-300 hover:text-white hover:bg-slate-800 transition-colors uppercase tracking-widest text-left"
+                                    >
+                                        <span className="material-symbols-outlined text-base">logout</span>
+                                        Cerrar Sesión
+                                    </button>
+                                    
+                                    {/* Botón Borrar Cuenta */}
+                                    <button
+                                        onClick={() => {
+                                            setIsMenuOpen(false);
+                                            handleDeleteAccount();
+                                        }}
+                                        className="flex items-center gap-3 px-4 py-3 text-xs font-mono text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors uppercase tracking-widest text-left border-t border-red-500/10"
+                                    >
+                                        <span className="material-symbols-outlined text-base">delete_forever</span>
+                                        Borrar Cuenta
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     ) : (
                         <Link
                             to="/login"
@@ -101,11 +152,6 @@ export default function Header({ isEditor = false }) {
                             Iniciar Sesión
                         </Link>
                     )}
-
-                    {/* Avatar dinámico: Muestra las primeras letras del usuario si está logueado */}
-                    <div className="w-8 h-8 rounded-full border border-[#00FF41]/30 bg-slate-800 overflow-hidden flex-shrink-0 flex items-center justify-center font-mono text-xs text-[#00FF41] uppercase font-bold">
-                        {authenticated ? user?.username?.slice(0, 2) : "??"}
-                    </div>
                 </div>
             </nav>
         </header>
