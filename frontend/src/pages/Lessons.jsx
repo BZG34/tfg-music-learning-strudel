@@ -48,7 +48,7 @@ export default function Lessons() {
     }, []);
 
     return (
-        <div className="page-lessons bg-[#0A0A0B] text-white min-h-screen selection:bg-[#00FF41]/30">
+        <div className="page-lessons bg-[#0A0A0B] text-on-background font-body-md min-h-screen flex flex-col selection:bg-primary-container/30 selection:text-primary-container">
             {/* HEADER ESTANDARIZADO */}
             <Header />
 

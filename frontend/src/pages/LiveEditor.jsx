@@ -493,12 +493,8 @@ export default function LiveEditor() {
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div className="page-live-editor bg-[#0A0A0B] text-on-surface font-body-md overflow-hidden h-screen flex flex-col selection:bg-primary-container/30 selection:text-primary-container pt-20">
-
-      {/* HEADER DEL EDITOR EN VIVO */}
-      {/* Prueba, quitar
-      <Header isEditor={true} />
-      */}
+    <div className="page-live-editor bg-[#0A0A0B] text-on-background font-body-md overflow-hidden h-screen flex flex-col selection:bg-primary-container/30 selection:text-primary-container pt-20">
+      {/* HEADER ESTANDARIZADO */}
       <Header />
 
       {/* ── BODY ───────────────────────────────────────────────────────────── */}

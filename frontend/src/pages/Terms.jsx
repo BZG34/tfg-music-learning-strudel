@@ -3,7 +3,7 @@ import Header from '../components/Header';
 
 export default function Terms() {
     return (
-        <div className="flex flex-col bg-[#0A0A0B] text-white min-h-screen selection:bg-[#00FF41]/30">
+        <div className="page-terms bg-[#0A0A0B] text-on-background font-body-md min-h-screen flex flex-col selection:bg-primary-container/30 selection:text-primary-container">
             <Header />
             <main className="flex-grow w-full max-w-3xl mx-auto pt-32 px-6 pb-20">
                 <span className="text-[10px] font-mono text-[#00FF41] uppercase tracking-widest bg-[#00FF41]/10 px-2 py-1 rounded border border-[#00FF41]/20">
