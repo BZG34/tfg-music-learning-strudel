@@ -10,6 +10,9 @@ export default function CommunityGallery() {
     const [tracks, setTracks] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
+	// ESTADO PARA LA BÚSQUEDA
+    const [searchQuery, setSearchQuery] = useState('');
+
     useEffect(() => {
         const fetchTracks = async () => {
             try {
@@ -25,6 +28,16 @@ export default function CommunityGallery() {
         };
         fetchTracks();
     }, []);
+
+	// LÓGICA DE FILTRADO
+    // Filtramos las pistas comprobando si la búsqueda coincide con el título o el username
+    const filteredTracks = tracks.filter((track) => {
+        const query = searchQuery.toLowerCase();
+        const titleMatch = track.title?.toLowerCase().includes(query);
+        const userMatch = track.owner?.username?.toLowerCase().includes(query);
+        return titleMatch || userMatch;
+    });
+
 	return (
 		<div className="page-community bg-[#0A0A0B] text-on-surface font-body-md selection:bg-primary-container selection:text-on-primary-container">
 			{/* HEADER ESTANDARIZADO */}
@@ -83,9 +96,16 @@ export default function CommunityGallery() {
 						<div className="flex flex-col md:flex-row gap-4">
 							<div className="relative flex-grow">
 								<span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">search</span>
-								<input className="w-full bg-[#0A0A0B] border-none text-on-surface placeholder:text-slate-600 pl-10 focus:ring-1 focus:ring-[#00FF41] font-mono text-sm h-12 rounded" placeholder="Buscar pistas, usuarios..." type="text" />
+								{/* ENLAZAMOS EL INPUT AL ESTADO */}
+                                <input 
+                                    className="w-full bg-[#0A0A0B] border-none text-on-surface placeholder:text-slate-600 pl-10 focus:ring-1 focus:ring-[#00FF41] font-mono text-sm h-12 rounded outline-none" 
+                                    placeholder="Buscar por título o usuario..." 
+                                    type="text" 
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
 							</div>
-							<div className="flex gap-2">
+							{/* <div className="flex gap-2">
 								<select className="bg-[#0A0A0B] border-none text-slate-400 focus:ring-1 focus:ring-[#00FF41] font-['Space_Grotesk'] text-sm rounded h-12 px-4 appearance-none">
 									<option>All Genres</option>
 									<option>Glitch Hop</option>
@@ -99,7 +119,7 @@ export default function CommunityGallery() {
 									<option>Expert</option>
 								</select>
 								<button type="button" className="h-12 w-12 flex items-center justify-center bg-[#00FF41]/10 border border-[#00FF41]/20 text-[#00FF41] rounded hover:bg-[#00FF41]/20 transition-all"><span className="material-symbols-outlined">tune</span></button>
-							</div>
+							</div> */}
 						</div>
 					</section>
 
@@ -113,15 +133,22 @@ export default function CommunityGallery() {
                             <div className="col-span-full py-12 text-center text-slate-500 font-mono border border-dashed border-[#00FF41]/20 rounded-xl">
                                 <p>No hay pistas en la comunidad todavía. ¡Sé el primero en publicar desde el Live Editor!</p>
                             </div>
+                        ) : filteredTracks.length === 0 ? (
+                            // Mensaje por si la búsqueda no encuentra nada
+                            <div className="col-span-full py-12 text-center text-slate-500 font-mono border border-dashed border-[#00FF41]/20 rounded-xl">
+                                <p>No se han encontrado pistas que coincidan con "{searchQuery}".</p>
+                                <button onClick={() => setSearchQuery('')} className="mt-4 text-[#00FF41] hover:underline">Limpiar búsqueda</button>
+                            </div>
                         ) : (
-                            tracks.map((track) => (
+							// Renderizamos filteredTracks en lugar de tracks
+                            filteredTracks.map((track) => (
                                 <article key={track.id} className="group bg-[#141416] border border-[#00FF41]/10 rounded-xl overflow-hidden glow-hover transition-all duration-300 flex flex-col h-full">
                                     <div className="h-40 bg-[#0A0A0B] relative overflow-hidden waveform-thumb flex items-center justify-center border-b border-[#00FF41]/10">
                                         <div className="absolute inset-0 bg-gradient-to-t from-[#141416] to-transparent z-10"></div>
                                         <span className="material-symbols-outlined text-6xl text-[#00FF41]/20 group-hover:scale-110 transition-transform duration-500">graphic_eq</span>
-                                        <div className="absolute top-3 left-3 px-2 py-1 bg-[#00FF41]/20 backdrop-blur-md rounded border border-[#00FF41]/30 z-20">
+                                        {/* <div className="absolute top-3 left-3 px-2 py-1 bg-[#00FF41]/20 backdrop-blur-md rounded border border-[#00FF41]/30 z-20">
                                             <span className="text-[10px] font-mono text-[#00FF41] uppercase tracking-widest">BPM: {track.bpm}</span>
-                                        </div>
+                                        </div> */}
                                     </div>
                                     <div className="p-6 flex-grow flex flex-col">
                                         <h3 className="font-headline-md text-xl text-on-surface mb-1 group-hover:text-[#00FF41] transition-colors line-clamp-1">{track.title}</h3>
@@ -148,21 +175,22 @@ export default function CommunityGallery() {
                             ))
                         )}
 
+						{/* Tarjeta para crear nueva pista */}
 						<div className="group bg-[#141416] border border-[#00FF41]/10 rounded-xl overflow-hidden glow-hover transition-all duration-300 flex flex-col h-full">
 							<div className="h-40 bg-[#0A0A0B] relative overflow-hidden waveform-thumb">
 								<div className="absolute inset-0 bg-gradient-to-t from-[#141416] to-transparent"></div>
 								<div className="absolute top-3 left-3 px-2 py-1 bg-[#00FF41]/20 backdrop-blur-md rounded border border-[#00FF41]/30">
-									<span className="text-[10px] font-mono text-[#00FF41] uppercase tracking-widest">Experimental</span>
+									<span className="text-[10px] font-mono text-[#00FF41] uppercase tracking-widest">Experimenta</span>
 								</div>
 							</div>
 							<div className="p-6 flex-grow flex flex-col items-center justify-center text-center gap-3">
 								<div className="w-14 h-14 rounded-full border border-[#00FF41]/20 flex items-center justify-center group-hover:scale-110 transition-transform">
 									<span className="material-symbols-outlined text-[#00FF41] text-2xl">add</span>
 								</div>
-								<h3 className="font-headline-md text-xl text-on-surface">Initialize New Track</h3>
-								<p className="text-sm text-slate-500 max-w-56">Start a fresh composition and publish it to the community feed.</p>
+								<h3 className="font-headline-md text-xl text-on-surface">Nueva Pista</h3>
+								<p className="text-sm text-slate-500 max-w-56">Crea una nueva publicación y compártela en el feed de la comunidad.</p>
 								<Link to="/editor" className="mt-2 inline-flex items-center justify-center gap-2 py-3 px-5 bg-[#00FF41]/10 border border-[#00FF41]/20 text-[#00FF41] rounded font-['Space_Grotesk'] text-sm font-bold uppercase hover:bg-[#00FF41] hover:text-[#003907] transition-all">
-									<span className="material-symbols-outlined text-lg">play_arrow</span> Open Editor
+									<span className="material-symbols-outlined text-lg">play_arrow</span> Abrir Editor
 								</Link>
 							</div>
 						</div>

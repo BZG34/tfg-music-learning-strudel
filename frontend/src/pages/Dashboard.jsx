@@ -238,7 +238,7 @@ export default function Dashboard() {
                   <div key={track.id} className="bg-[#141416] border border-[#00FF41]/20 p-6 rounded-xl hover:border-[#00FF41]/60 transition-colors group flex flex-col">
                     <div className="flex justify-between items-start mb-4">
                       <h3 className="text-lg font-bold text-white font-['Space_Grotesk'] truncate pr-2 group-hover:text-[#00FF41] transition-colors">{track.title}</h3>
-                      <span className="bg-[#00FF41]/10 text-[#00FF41] text-[10px] font-mono px-2 py-1 rounded border border-[#00FF41]/20 whitespace-nowrap">BPM {track.bpm}</span>
+                      {/* <span className="bg-[#00FF41]/10 text-[#00FF41] text-[10px] font-mono px-2 py-1 rounded border border-[#00FF41]/20 whitespace-nowrap">BPM {track.bpm}</span> */}
                     </div>
                     <div className="bg-black/50 p-3 rounded border border-slate-800 h-20 overflow-hidden relative mb-6">
                       <pre className="text-[10px] font-mono text-[#00FF41]/70 whitespace-pre-wrap">
