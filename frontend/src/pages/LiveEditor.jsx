@@ -351,7 +351,6 @@ export default function LiveEditor() {
   }, []);
 
   // ── Strudel eval ──────────────────────────────────────────────────────────
-  // ── Strudel eval ──────────────────────────────────────────────────────────
   const handleEval = useCallback(async () => {
     if (isIniting) return;
     const code = getCode();
@@ -397,6 +396,44 @@ export default function LiveEditor() {
     setIsPlaying(false);
     addLog('system', 'Audio detenido');
   }, [addLog]);
+
+  // ── Atajos de Teclado Globales ────────────
+  useEffect(() => {
+    // Lógica para los atajos de teclado
+    const handleGlobalKeyDown = (e) => {
+      // Si pulsa Ctrl + Enter (o Cmd + Enter en Mac)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault(); // Evitamos que haga saltos de línea raros
+        handleEval();
+      }
+      // Si pulsa Ctrl + . (o Cmd + . en Mac)
+      if ((e.ctrlKey || e.metaKey) && e.key === '.') {
+        e.preventDefault();
+        handleStop();
+      }
+    };
+
+    // Añadimos el escuchador a toda la ventana
+    window.addEventListener('keydown', handleGlobalKeyDown);
+
+    // Limpiamos el atajo al re-renderizar, pero no paramos la música
+    return () => {
+      window.removeEventListener('keydown', handleGlobalKeyDown);
+    };
+  }, [handleEval, handleStop]);
+
+  // ── Limpieza de Audio al salir de la página ───────────────────
+  useEffect(() => {
+    // Al dejar los corchetes vacíos [], le decimos a React que este efecto solo debe ejecutarse al montar el componente por primera vez, y su
+    // return SÓLO debe ejecutarse cuando el componente se destruye (al navegar).
+    return () => {
+      try {
+        hush(); // Llamamos directamente a la función de Strudel para cortar el audio
+      } catch (e) {
+        // Silenciamos posibles errores si Strudel no había llegado a arrancar
+      }
+    };
+  }, []);
 
   // ── Quick command handler ──────────────────────────────────────────────────
   const handleQuickCmd = useCallback((e) => {
@@ -642,6 +679,7 @@ export default function LiveEditor() {
                 <button 
                   type="button" 
                   onClick={() => {
+                    handleStop(); // Paramos la música antes de navegar a la siguiente lección
                     const nextId = parseInt(lesson.number) + 1;
                     // Comparamos con el total REAL de la base de datos
                     if (nextId > totalLessons) {
