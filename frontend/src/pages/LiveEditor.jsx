@@ -274,7 +274,7 @@ export default function LiveEditor() {
             quiz_question: lessonData.quiz_question,
             quiz_options: lessonData.quiz_options,
             quiz_answer: lessonData.quiz_answer,
-            objectives: [{ done: false, text: "Aplica los conceptos usando Strudel" }]
+            objectives: [{ done: false, text: "Sin completar" }]
           });
           const nextCode = `// Lección ${lessonData.lesson_number} — ${lessonData.title}\n\n${lessonData.hint_code || '// Escribe tu código'}`;
           setStarterCode(nextCode);
@@ -521,7 +521,7 @@ export default function LiveEditor() {
         // Actualizamos visualmente el objetivo para que salga tachado
         setLesson(prev => ({
           ...prev,
-          objectives: [{ done: true, text: "Aplica los conceptos usando Strudel" }]
+          objectives: [{ done: true, text: "Completada" }]
         }));
       } else {
         addLog('error', 'Fallo al sincronizar el progreso.');
@@ -644,7 +644,7 @@ export default function LiveEditor() {
                       {/* Objectives */}
                       <div className="space-y-3 mt-8">
                         <h3 className="font-label-caps text-label-caps text-[#00FF41] uppercase tracking-widest border-b border-[#00FF41]/10 pb-2">
-                          Objetivos
+                          Estado de la lección
                         </h3>
                         <ul className="space-y-4">
                           {lesson.objectives.map((obj, i) => (
