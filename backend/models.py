@@ -23,7 +23,7 @@ class User(Base):
     projects = relationship("Project", back_populates="owner")
 
     # Relación con las lecciones completadas por el usuario
-    completed_lessons = relationship("Lesson", secondary=user_completed_lessons, backref="completed_by")
+    completed_lessons = relationship("Lesson", secondary=user_completed_lessons, back_populates="users_completed")
 
 class Project(Base):
     __tablename__ = "projects"
@@ -51,3 +51,12 @@ class Lesson(Base):
     lesson_number = Column(String, unique=True, nullable=False)
     title = Column(String, nullable=False)
     hint_code = Column(Text)
+
+    # ── Campos para el quiz ──
+    is_quiz = Column(Boolean, default=False)
+    quiz_question = Column(String, nullable=True)
+    quiz_options = Column(String, nullable=True)  # Guardaremos opciones separadas por '|'
+    quiz_answer = Column(Integer, nullable=True)  # Índice (0, 1, 2...) de la correcta
+
+    # Relación con los usuarios que han completado esta lección
+    users_completed = relationship("User", secondary=user_completed_lessons, back_populates="completed_lessons")

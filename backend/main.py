@@ -85,165 +85,201 @@ def seed_database():
 
     # B) Inyectar el Plan de Estudios si no existe
     curriculum = [
-        # --- BLOQUE 1: RITMO ---
+        # ==========================================
+        # BLOQUE 1: RITMO Y TIEMPO (Fundamentos)
+        # ==========================================
         schemas.LessonCreate(
             lesson_number="1",
-            title="B1: Hola Mundo Sonoro (El Pulso)",
-            hint_code="""// BLOQUE 1: RITMO
-// s() dispara un sample de audio.
-// 'bd' es bombo (bass drum), 'sd' es caja (snare drum).
-// Evalúa esto para escuchar tu primer latido:
+            title="B1: El Latido de la Música",
+            hint_code="""// TEORÍA: El 'Pulso' es el latido constante de una canción (como un reloj).
+// En música electrónica, el Bombo (Bass Drum o 'bd') suele marcar este pulso.
+// Evalúa este código para escuchar 4 pulsos de bombo:
+
+s("bd bd bd bd")"""
+        ),
+        schemas.LessonCreate(
+            lesson_number="2",
+            title="B1: Dinámica (Volumen)",
+            hint_code="""// TEORÍA: La 'Dinámica' se refiere a lo fuerte o suave que suena una nota.
+// En Strudel usamos .gain() donde 1 es normal, 0.5 es la mitad, y 0 es mudo.
+
+s("bd bd bd bd").gain(0.4)"""
+        ),
+        schemas.LessonCreate(
+            lesson_number="3",
+            title="B1: El Compás Básico (4/4)",
+            hint_code="""// TEORÍA: Un 'Compás' agrupa los pulsos. El más común en Pop/Rock es de 4 pulsos (4/4).
+// Suele acentuarse el pulso 2 y el 4 con una Caja (Snare Drum o 'sd').
 
 s("bd sd bd sd")"""
         ),
         schemas.LessonCreate(
-            lesson_number="2",
-            title="B1: El valor del Silencio",
-            hint_code="""// BLOQUE 1: RITMO
-// La música respira. Usamos la virgulilla (~) para crear silencios.
-// Nota cómo el silencio cambia el 'groove'.
+            lesson_number="4",
+            title="B1: El Silencio",
+            hint_code="""// TEORÍA: En música, el silencio tiene el mismo valor que el sonido.
+// Genera tensión y 'groove'. En Strudel usamos la virgulilla (~) para crear silencios.
 
 s("bd ~ bd sd")"""
         ),
         schemas.LessonCreate(
-            lesson_number="3",
-            title="B1: Multiplicadores",
-            hint_code="""// BLOQUE 1: RITMO
-// Con el asterisco (*) multiplicamos un sonido dentro del mismo pulso.
-// 'hh' es el charles (hi-hat). Vamos a acelerarlo:
-
-s("bd hh*4 sd hh*2")"""
-        ),
-
-        # --- BLOQUE 2: COMPÁS Y ESTRUCTURA ---
-        schemas.LessonCreate(
-            lesson_number="4",
-            title="B2: Multicanal (Stack)",
-            hint_code="""// BLOQUE 2: COMPÁS
-// stack() nos permite reproducir varias pistas a la vez.
-// Es el equivalente a tener varios músicos tocando juntos.
-
-stack(
-  s("bd ~ bd sd"),
-  s("hh*8").gain(0.5) // .gain() baja el volumen de esta pista
-)"""
-        ),
-        schemas.LessonCreate(
             lesson_number="5",
-            title="B2: Manipulación del Tiempo",
-            hint_code="""// BLOQUE 2: COMPÁS
-// .fast() y .slow() alteran la velocidad de una pista específica
-// sin cambiar el BPM global del proyecto.
-
-stack(
-  s("bd sd").fast(2),
-  s("cp").slow(2) // 'cp' = aplauso (clap) a mitad de velocidad
-)"""
+            title="B1: Tempo (BPM)",
+            hint_code="""// TEORÍA: El Tempo (BPM - Beats Per Minute) dicta la velocidad.
+// 60 BPM = lento (1 latido por segundo). 120 BPM = ritmo de baile estándar.
+// Usa el control deslizante de arriba para subir el BPM a 130 y pulsa Play."""
         ),
         schemas.LessonCreate(
             lesson_number="6",
-            title="B2: Ritmos Euclidianos",
-            hint_code="""// BLOQUE 2: COMPÁS
-// Los ritmos euclidianos (pulsos,pasos) distribuyen golpes 
-// matemáticamente de forma equidistante en un compás.
+            title="B1: Subdivisiones (Corcheas)",
+            hint_code="""// TEORÍA: Las corcheas duran la mitad que un pulso normal (entran 2 golpes por cada pulso).
+// Usamos los corchetes [] para decirle a Strudel que meta varios sonidos en 1 solo pulso.
 
-stack(
-  s("bd(3,8)"), // 3 bombos repartidos en 8 pasos
-  s("hh*8").gain(0.3)
-)"""
+s("bd [hh hh] sd hh")"""
         ),
-
-        # --- BLOQUE 3: ESCALAS Y MELODÍA ---
+        # --- EXAMEN BLOQUE 1 ---
         schemas.LessonCreate(
             lesson_number="7",
-            title="B3: Notas y Sintetizadores",
-            hint_code="""// BLOQUE 3: ESCALAS
-// Abandonamos los samples. n() genera notas musicales por números.
-// .s("saw") le dice a Strudel que use un sintetizador de onda de sierra.
-
-n("0 2 4 5").s("saw")"""
+            title="B1: TEST de Ritmo",
+            hint_code="",
+            is_quiz=True,
+            quiz_question="¿Para qué utilizamos los corchetes [] en la programación rítmica?",
+            quiz_options="Para subir el volumen general de la pista.|Para subdividir el tiempo, tocando varios sonidos dentro de un solo pulso.|Para crear silencios absolutos en el compás.",
+            quiz_answer=1
         ),
+
+        # ==========================================
+        # BLOQUE 2: MELODÍA Y ALTURA (Mapeo Tonal)
+        # ==========================================
         schemas.LessonCreate(
             lesson_number="8",
-            title="B3: Aplicando Escalas",
-            hint_code="""// BLOQUE 3: ESCALAS
-// Tocar números sueltos puede sonar desafinado.
-// .scale() fuerza a las notas a pertenecer a una familia armónica.
+            title="B2: Frecuencias y Síntesis Básica",
+            hint_code="""// TEORÍA: Dejamos la percusión pura. Los sintetizadores generan tonos (frecuencias).
+// .s("saw") activa un sintetizador. n() cambia la altura de la nota.
 
-n("0 2 4 7 4 2 0 -1")
-  .scale("C:minor") // Escala de Do menor
-  .s("square")      // Sintetizador de onda cuadrada"""
+n("0 2").s("saw")"""
         ),
         schemas.LessonCreate(
             lesson_number="9",
-            title="B3: Sub-patrones Melódicos",
-            hint_code="""// BLOQUE 3: ESCALAS
-// Los corchetes [] permiten agrupar varias notas en el espacio de una.
-// Esto crea melodías mucho más dinámicas y rítmicas.
+            title="B2: La Octava",
+            hint_code="""// TEORÍA: Una octava es el salto a la misma nota, pero más aguda o más grave.
+// La diferencia entre n("0") y n("12") es exactamente una octava (12 semitonos).
 
-n("0 [2 4] 7 [4 2]")
-  .scale("A:minor")
-  .s("saw")"""
+n("0 12").s("square")"""
         ),
-
-        # --- BLOQUE 4: ARMONÍA ---
         schemas.LessonCreate(
             lesson_number="10",
-            title="B4: Triadas y Acordes",
-            hint_code="""// BLOQUE 4: ARMONÍA
-// Un acorde es un grupo de notas sonando a la vez.
-// Usamos comilla simple (') para llamar acordes predefinidos.
+            title="B2: Escalas Musicales",
+            hint_code="""// TEORÍA: Una escala es una familia de notas que suenan bien juntas.
+// La escala Mayor suele sonar alegre, la Menor (minor) suele sonar triste o épica.
 
-n("'c:maj 'a:min 'f:maj 'g:maj")
-  .s("triangle") // Onda triangular, muy suave
-  .slow(2)       // Acordes largos y sostenidos"""
+n("0 1 2 3 4 5 6 7").scale("C:minor").s("saw")"""
         ),
         schemas.LessonCreate(
             lesson_number="11",
-            title="B4: Arpegios",
-            hint_code="""// BLOQUE 4: ARMONÍA
-// .arp() rompe un acorde sólido y toca sus notas una tras otra,
-// creando una textura rítmica y armónica a la vez.
+            title="B2: Caleidoscopio Melódico",
+            hint_code="""// TEORÍA: Combinamos las subdivisiones rítmicas del B1 con las escalas del B2.
+// Escucha cómo se crea una melodía compleja (arpegio).
 
-n("'c:maj 'a:min 'f:maj 'g:maj")
-  .arp("updown") // Sube y baja por las notas del acorde
-  .s("saw")
-  .gain(0.5)"""
+n("0 [2 4] 7 [4 2]").scale("A:minor").s("saw")"""
         ),
-
-        # --- BLOQUE 5: SÍNTESIS ---
+        # --- EXAMEN BLOQUE 2 ---
         schemas.LessonCreate(
             lesson_number="12",
-            title="B5: Esculpiendo Frecuencias",
-            hint_code="""// BLOQUE 5: SÍNTESIS
-// .lpf() (Low Pass Filter) recorta las frecuencias agudas.
-// Hace que un sonido brillante y molesto suene oscuro y cálido.
-
-n("0 [2 4] 7 4").scale("E:minor").s("saw")
-  .lpf(800) // Prueba a cambiar este 800 por 4000"""
+            title="B2: TEST de Melodía",
+            hint_code="",
+            is_quiz=True,
+            quiz_question="¿Qué propósito principal tiene el modificador .scale() en nuestras melodías?",
+            quiz_options="Fuerza a los números a ajustarse a una estructura armónica (escala) para que suenen entonados.|Cambia el instrumento de un sintetizador a un piano clásico.|Alarga la duración del compás haciéndolo infinito.",
+            quiz_answer=0
         ),
+
+        # ==========================================
+        # BLOQUE 3: TEXTURA Y ARMONÍA (Capas y Efectos)
+        # ==========================================
         schemas.LessonCreate(
             lesson_number="13",
-            title="B5: El Espacio (Reverb y Delay)",
-            hint_code="""// BLOQUE 5: SÍNTESIS
-// Damos profundidad 3D al sonido simulando habitaciones o ecos.
+            title="B3: Multipista (Stacks)",
+            hint_code="""// TEORÍA: En un estudio de grabación hay varias pistas (instrumentos) sonando a la vez.
+// La función stack() nos permite emular esto, apilando secuencias rítmicas.
 
-n("0 ~ 4 ~").scale("E:minor").s("saw")
-  .room(0.8)  // Tamaño de la habitación (reverberación)
-  .delay(0.5) // Añade un eco rítmico"""
+stack(
+  s("bd ~ bd sd"),       // Pista 1 (Bombo/Caja)
+  s("hh*8").gain(0.5)    // Pista 2 (Platillos rápidos)
+)"""
         ),
         schemas.LessonCreate(
             lesson_number="14",
-            title="B5: Modulación de Parámetros",
-            hint_code="""// BLOQUE 5: SÍNTESIS
-// Podemos hacer que los parámetros se muevan solos.
-// Aquí, el filtro sube y baja usando una onda sinusoidal.
+            title="B3: La Armonía (Acordes)",
+            hint_code="""// TEORÍA: Un acorde consiste en reproducir 3 o más notas simultáneamente.
+// Esto da soporte (textura) a la melodía. Usamos acordes escritos (ej. c:min para Do Menor).
+
+n("'c:min 'f:min").s("triangle").slow(2)"""
+        ),
+        schemas.LessonCreate(
+            lesson_number="15",
+            title="B3: Arpegios (La Armonía en movimiento)",
+            hint_code="""// TEORÍA: En lugar de tocar el acorde de golpe, podemos tocar sus notas una a una.
+// La función .arp() se encarga de descomponer el acorde automáticamente.
+
+n("'c:min 'f:min").arp("updown").s("saw")"""
+        ),
+        schemas.LessonCreate(
+            lesson_number="16",
+            title="B3: El Timbre (Filtros)",
+            hint_code="""// TEORÍA: El timbre es el 'color' del sonido. Un filtro de paso bajo (LPF)
+// recorta las frecuencias agudas, simulando que el sonido viene de detrás de una pared.
+
+n("0 [2 4] 7 4").scale("E:minor").s("saw").lpf(600)"""
+        ),
+        schemas.LessonCreate(
+            lesson_number="17",
+            title="B3: El Espacio (Reverb)",
+            hint_code="""// TEORÍA: La reverberación simula que el sonido ocurre dentro de un espacio físico.
+// .room() genera esa textura ambiental 3D. 1.0 es una catedral, 0.1 es un armario.
+
+n("0 ~ 4 ~").scale("E:minor").s("saw").room(0.8)"""
+        ),
+        schemas.LessonCreate(
+            lesson_number="18",
+            title="B3: Modulación Automática",
+            hint_code="""// TEORÍA: Podemos decirle a Strudel que gire los botones por nosotros usando un LFO (sine).
+// Fíjate cómo el filtro (.lpf) se abre y se cierra solo, dándole vida a la textura.
 
 stack(
   s("bd*4"),
   n("0 2 4 7").scale("E:minor").s("saw")
-    .lpf(sine.range(400, 3000).fast(0.2)) // El filtro 'respira'
+    .lpf(sine.range(300, 3000).fast(0.2)) 
     .room(0.5)
+)"""
+        ),
+        # --- EXAMEN BLOQUE 3 ---
+        schemas.LessonCreate(
+            lesson_number="19",
+            title="B3: TEST de Armonía",
+            hint_code="",
+            is_quiz=True,
+            quiz_question="¿Cuál es la diferencia técnica entre programar una Melodía simple y una estructura Armónica (Acorde)?",
+            quiz_options="La melodía utiliza silencios, mientras que la armonía ocupa todo el compás.|La melodía reproduce una nota detrás de otra de forma secuencial, mientras que un acorde requiere reproducir varias notas simultáneamente.|Los acordes solo pueden crearse utilizando samples de percusión.",
+            quiz_answer=1
+        ),
+        
+        # --- DESPEDIDA ---
+        schemas.LessonCreate(
+            lesson_number="20",
+            title="¡Graduación!",
+            hint_code="""// ¡Felicidades! Has superado la Academia de Código Sonoro.
+// Ya dominas el ritmo, las escalas, la armonía y el diseño sonoro algorítmico.
+//
+// -> Dirígete ahora a 'Nueva Pista' en la cabecera.
+// ¡Es hora de componer tus propias canciones para la Galería Comunitaria!
+//
+// Disfruta de esta melodía de graduación:
+
+stack(
+  s("bd*4"),
+  s("hh*8").gain(0.4),
+  n("0 [3 5] 7 [10 12]").scale("G:major").s("saw").lpf(1500).room(0.6).fast(2),
+  n("'g:maj 'c:maj 'd:maj 'g:maj").s("triangle").slow(2).room(0.8)
 )"""
         )
     ]

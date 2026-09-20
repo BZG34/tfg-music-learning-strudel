@@ -175,6 +175,10 @@ export default function LiveEditor() {
   const [quickCmd,     setQuickCmd]     = useState('');
   const [activePanel,  setActivePanel]  = useState('objectives'); // 'objectives' | 'docs'
 
+  // Estados para el sistema de exámenes tipo quiz
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [quizStatus, setQuizStatus] = useState('idle'); // 'idle', 'correct', 'incorrect'
+
   const editorRef    = useRef(null);   // DOM node
   const cmViewRef    = useRef(null);   // CodeMirror EditorView
   const logEndRef    = useRef(null);   // auto-scroll anchor
@@ -195,7 +199,13 @@ export default function LiveEditor() {
     logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
 
-  // ── Load lesson or project data from PostgreSQL ─────────────────────────
+  // Reset del estado del quiz al cambiar de lección
+  useEffect(() => {
+    setSelectedAnswer(null);
+    setQuizStatus('idle');
+  }, [lessonId]);
+
+  // ── Cargar datos de la lección o proyecto ─────────────────────────
   useEffect(() => {
     let isCancelled = false;
 
@@ -260,6 +270,10 @@ export default function LiveEditor() {
             number: lessonData.lesson_number,
             title: lessonData.title,
             hint: lessonData.hint_code,
+            is_quiz: lessonData.is_quiz,
+            quiz_question: lessonData.quiz_question,
+            quiz_options: lessonData.quiz_options,
+            quiz_answer: lessonData.quiz_answer,
             objectives: [{ done: false, text: "Aplica los conceptos usando Strudel" }]
           });
           const nextCode = `// Lección ${lessonData.lesson_number} — ${lessonData.title}\n\n${lessonData.hint_code || '// Escribe tu código'}`;
@@ -392,9 +406,21 @@ export default function LiveEditor() {
   }, [isIniting, getCode, bpm, addLog]);
 
   const handleStop = useCallback(() => {
-    hush();
-    setIsPlaying(false);
-    addLog('system', 'Audio detenido');
+    // Si Strudel nunca se ha descargado/inicializado, ignoramos la orden de parar.
+    if (!strudelInitedRef.current) {
+      setIsPlaying(false);
+      return; 
+    }
+
+    // Si ya estaba inicializado, intentamos callarlo de forma segura
+    try {
+      hush();
+      setIsPlaying(false);
+      addLog('system', 'Audio detenido');
+    } catch (e) {
+      console.warn("Aviso de Strudel al detener:", e);
+      // Evitamos que la web crashee si hush() falla internamente
+    }
   }, [addLog]);
 
   // ── Atajos de Teclado Globales ────────────
@@ -424,16 +450,12 @@ export default function LiveEditor() {
 
   // ── Limpieza de Audio al salir de la página ───────────────────
   useEffect(() => {
-    // Al dejar los corchetes vacíos [], le decimos a React que este efecto solo debe ejecutarse al montar el componente por primera vez, y su
-    // return SÓLO debe ejecutarse cuando el componente se destruye (al navegar).
     return () => {
-      try {
-        hush(); // Llamamos directamente a la función de Strudel para cortar el audio
-      } catch (e) {
-        // Silenciamos posibles errores si Strudel no había llegado a arrancar
+      if (strudelInitedRef.current) {
+        try { hush(); } catch (e) {}
       }
     };
-  }, []);
+  }, []);;
 
   // ── Quick command handler ──────────────────────────────────────────────────
   const handleQuickCmd = useCallback((e) => {
@@ -447,6 +469,28 @@ export default function LiveEditor() {
     }
     setQuickCmd('');
   }, [quickCmd, getCode, addLog, handleEval]);
+
+  // ── LÓGICA DE CORRECCIÓN DEL EXAMEN ──
+  const handleCheckQuiz = async () => {
+    if (selectedAnswer === lesson.quiz_answer) {
+      setQuizStatus('correct');
+      addLog('success', '¡Respuesta correcta! Has superado el módulo.');
+      
+      // Si acierta, marcamos la lección como completada en la BD
+      try {
+        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        await fetch(`${API_BASE_URL}/api/lessons/${lesson.id}/complete`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      } catch (e) {
+        console.error("Error guardando progreso:", e);
+      }
+    } else {
+      setQuizStatus('incorrect');
+      addLog('error', 'Respuesta incorrecta. Revisa la teoría e inténtalo de nuevo.');
+    }
+  };
 
   // ── BPM change — re-eval if playing ───────────────────────────────────────
   const handleBpmChange = useCallback((newBpm) => {
@@ -681,98 +725,148 @@ export default function LiveEditor() {
                   onClick={() => {
                     handleStop(); // Paramos la música antes de navegar a la siguiente lección
                     const nextId = parseInt(lesson.number) + 1;
-                    // Comparamos con el total REAL de la base de datos
-                    if (nextId > totalLessons) {
-                      navigate('/lessons');
-                    } else {
-                      setLogs([{ id: logIdRef.current++, type: 'system', message: 'Cargando siguiente módulo...', time: now() }]);
-                      navigate(`/editor/${nextId}`);
-                    }
+                    setLogs([{ id: logIdRef.current++, type: 'system', message: `Saltando al Módulo ${nextId}...`, time: now() }]);
+                    
+                    // Forzamos la recarga limpia de la URL de React Router
+                    navigate(`/editor/${nextId}`, { replace: true });
+                    
+                    // Si el componente no re-monta mágicamente por culpa del Router,
+                    // forzamos el refresco suave de la página al milisegundo.
+                    setTimeout(() => window.location.reload(), 100);
                   }}
                   className="w-full py-3 bg-[#00FF41]/20 border border-[#00FF41]/50 text-[#00FF41] hover:bg-[#00FF41] hover:text-black font-label-caps uppercase text-xs tracking-widest font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-[0_0_15px_rgba(0,255,65,0.2)]"
                 >
-                  {/* El texto cambia inteligentemente si estás en la última lección */}
-                  {parseInt(lesson.number) >= totalLessons ? (
-                    <><span>VOLVER A LA ACADEMIA</span><span className="material-symbols-outlined text-sm">school</span></>
-                  ) : (
-                    <><span>SIGUIENTE LECCIÓN</span><span className="material-symbols-outlined text-sm">arrow_forward</span></>
-                  )}
+                  <span>SIGUIENTE LECCIÓN</span><span className="material-symbols-outlined text-sm">arrow_forward</span>
                 </button>
               ) : (
                 <button 
                   type="button" 
                   onClick={handleCompleteLesson}
-                  className="w-full py-3 bg-[#00FF41]/10 border border-[#00FF41]/30 text-[#00FF41] hover:bg-[#00FF41] hover:text-black font-label-caps uppercase text-xs tracking-widest font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  // Si estamos en un Examen y NO lo ha acertado, bloqueamos este botón lateral
+                  disabled={lesson.is_quiz && quizStatus !== 'correct'}
+                  className="w-full py-3 bg-[#00FF41]/10 border border-[#00FF41]/30 text-[#00FF41] hover:bg-[#00FF41] hover:text-black font-label-caps uppercase text-xs tracking-widest font-bold transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                 >
-                  <span>MARCAR COMO COMPLETADA</span>
-                  <span className="material-symbols-outlined text-sm">task_alt</span>
+                  <span>{lesson.is_quiz ? "SUPERA EL TEST PRIMERO" : "MARCAR COMO COMPLETADA"}</span>
+                  <span className="material-symbols-outlined text-sm">{lesson.is_quiz ? "lock" : "task_alt"}</span>
                 </button>
               )
             )}
           </div>
         </section>
 
-        {/* ── CENTER PANEL — Code editor ──────────────────────────────────── */}
+        {/* ── CENTER PANEL — Code editor o Examen ─────────────────────────── */}
         <section className="flex-1 bg-[#0A0A0B] flex flex-col relative border-r border-[#00FF41]/10 min-w-0">
-          {/* Editor toolbar */}
-          <div className="h-12 border-b border-[#00FF41]/10 flex items-center px-4 justify-between bg-[#0F0F11] flex-shrink-0">
-            <div className="flex items-center gap-2 text-slate-500 text-xs">
-              <span className="material-symbols-outlined text-sm">description</span>
-              <span className="font-mono">MAIN_SEQUENCE.STRUDEL</span>
-            </div>
-            <div className="flex items-center gap-4">
-              {/* Eval shortcut hint */}
-              <span className="text-[10px] font-mono text-slate-600 hidden sm:block">Ctrl+Enter evalúa · Ctrl+. detiene</span>
-              <div className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full transition-colors ${isPlaying ? 'bg-[#00FF41] animate-pulse' : isIniting ? 'bg-amber-500 animate-pulse' : 'bg-slate-600'}`}></span>
-                <span className="text-[10px] text-slate-400 uppercase font-mono">
-                  {isPlaying ? 'Motor Activo' : isIniting ? 'Inicializando…' : 'Motor Listo'}
-                </span>
+          
+          {lesson?.is_quiz ? (
+            
+            // ── INTERFAZ DE EXAMEN (TEST) ──
+            <div className="flex flex-col items-center justify-center h-full p-8 bg-[#0A0A0B] overflow-y-auto">
+              <span className="material-symbols-outlined text-6xl text-[#00FF41] mb-6">quiz</span>
+              <h2 className="text-2xl md:text-3xl font-black font-['Space_Grotesk'] text-white text-center mb-10 max-w-3xl leading-relaxed">
+                {lesson.quiz_question}
+              </h2>
+              
+              <div className="w-full max-w-2xl space-y-4">
+                {lesson.quiz_options?.split('|').map((option, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      if (quizStatus !== 'correct') { // Si ya acertó, no dejamos cambiar
+                        setSelectedAnswer(index);
+                        setQuizStatus('idle'); // Quitamos el error previo
+                      }
+                    }}
+                    className={`w-full p-5 rounded-lg border text-left transition-all ${
+                      selectedAnswer === index 
+                        ? quizStatus === 'correct' 
+                          ? 'border-[#00FF41] bg-[#00FF41]/20 text-[#00FF41]' // Acertada
+                          : quizStatus === 'incorrect'
+                            ? 'border-red-500 bg-red-500/20 text-red-400' // Fallada
+                            : 'border-[#00FF41] bg-[#00FF41]/10 text-white' // Seleccionada
+                        : 'border-slate-800 bg-[#141416] text-slate-400 hover:border-slate-600' // Reposo
+                    }`}
+                  >
+                    <span className="font-mono font-bold mr-4 text-[#00FF41]">{String.fromCharCode(65 + index)}.</span>
+                    <span className="text-sm md:text-base leading-relaxed">{option}</span>
+                  </button>
+                ))}
               </div>
-            </div>
-          </div>
 
-          {/* CodeMirror mount */}
-          <div className="flex-1 overflow-hidden">
-            <div
-              ref={editorRef}
-              className="h-full overflow-auto [&_.cm-editor]:h-full [&_.cm-scroller]:h-full"
-            />
-          </div>
-
-          {/* Console / log panel */}
-          <div className="h-40 border-t border-[#00FF41]/10 bg-[#0A0A0B] flex flex-col flex-shrink-0">
-            <div className="flex items-center gap-2 px-4 py-2 border-b border-[#00FF41]/5 bg-[#0F0F11] flex-shrink-0">
-              <span className="material-symbols-outlined text-[#00FF41] text-sm">terminal</span>
-              <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Consola del sistema</span>
+              {/* Botón de Comprobar */}
               <button
-                type="button"
-                onClick={() => setLogs([{ id: logIdRef.current++, type: 'system', message: 'Consola limpiada.', time: now() }])}
-                className="ml-auto text-[10px] font-mono text-slate-600 hover:text-slate-400 transition-colors"
+                onClick={handleCheckQuiz}
+                disabled={selectedAnswer === null || quizStatus === 'correct'}
+                className="mt-10 px-8 py-3 bg-[#00FF41] text-[#003907] font-bold font-['Space_Grotesk'] uppercase tracking-widest rounded hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
-                limpiar
+                {quizStatus === 'correct' ? '¡Módulo Superado!' : 'Comprobar Respuesta'}
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto px-4 py-2 space-y-1">
-              {logs.map(entry => <LogEntry key={entry.id} entry={entry} />)}
-              <div ref={logEndRef} />
-            </div>
-          </div>
 
-          {/* Quick command bar */}
-          <div className="border-t border-[#00FF41]/10 bg-[#0F0F11] px-4 py-2 flex items-center gap-3 flex-shrink-0">
-            <span className="text-[#00FF41] font-mono text-sm flex-shrink-0">$</span>
-            <input
-              className="bg-transparent border-none text-xs w-full text-slate-300 placeholder:text-slate-600 focus:outline-none font-mono"
-              // placeholder="Atajos — /bpm 140 · /hush · /eval · /help"
-              placeholder="Atajos — /hush · /eval · /help"
-              type="text"
-              value={quickCmd}
-              onChange={e => setQuickCmd(e.target.value)}
-              onKeyDown={handleQuickCmd}
-              spellCheck={false}
-            />
-          </div>
+          ) : (
+
+            // ── INTERFAZ NORMAL (EDITOR DE CÓDIGO STRUDEL) ──
+            <>
+              {/* Editor toolbar */}
+              <div className="h-12 border-b border-[#00FF41]/10 flex items-center px-4 justify-between bg-[#0F0F11] flex-shrink-0">
+                <div className="flex items-center gap-2 text-slate-500 text-xs">
+                  <span className="material-symbols-outlined text-sm">description</span>
+                  <span className="font-mono">MAIN_SEQUENCE.STRUDEL</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  {/* Eval shortcut hint */}
+                  <span className="text-[10px] font-mono text-slate-600 hidden sm:block">Ctrl+Enter evalúa · Ctrl+. detiene</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full transition-colors ${isPlaying ? 'bg-[#00FF41] animate-pulse' : isIniting ? 'bg-amber-500 animate-pulse' : 'bg-slate-600'}`}></span>
+                    <span className="text-[10px] text-slate-400 uppercase font-mono">
+                      {isPlaying ? 'Motor Activo' : isIniting ? 'Inicializando…' : 'Motor Listo'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* CodeMirror mount */}
+              <div className="flex-1 overflow-hidden">
+                <div
+                  ref={editorRef}
+                  className="h-full overflow-auto [&_.cm-editor]:h-full [&_.cm-scroller]:h-full"
+                />
+              </div>
+
+              {/* Console / log panel */}
+              <div className="h-40 border-t border-[#00FF41]/10 bg-[#0A0A0B] flex flex-col flex-shrink-0">
+                <div className="flex items-center gap-2 px-4 py-2 border-b border-[#00FF41]/5 bg-[#0F0F11] flex-shrink-0">
+                  <span className="material-symbols-outlined text-[#00FF41] text-sm">terminal</span>
+                  <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Consola del sistema</span>
+                  <button
+                    type="button"
+                    onClick={() => setLogs([{ id: logIdRef.current++, type: 'system', message: 'Consola limpiada.', time: now() }])}
+                    className="ml-auto text-[10px] font-mono text-slate-600 hover:text-slate-400 transition-colors"
+                  >
+                    limpiar
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto px-4 py-2 space-y-1">
+                  {logs.map(entry => <LogEntry key={entry.id} entry={entry} />)}
+                  <div ref={logEndRef} />
+                </div>
+              </div>
+
+              {/* Quick command bar */}
+              <div className="border-t border-[#00FF41]/10 bg-[#0F0F11] px-4 py-2 flex items-center gap-3 flex-shrink-0">
+                <span className="text-[#00FF41] font-mono text-sm flex-shrink-0">$</span>
+                <input
+                  className="bg-transparent border-none text-xs w-full text-slate-300 placeholder:text-slate-600 focus:outline-none font-mono"
+                  placeholder="Atajos — /hush · /eval · /help"
+                  type="text"
+                  value={quickCmd}
+                  onChange={e => setQuickCmd(e.target.value)}
+                  onKeyDown={handleQuickCmd}
+                  spellCheck={false}
+                />
+              </div>
+            </>
+          )}
+
         </section>
 
         {/* ── RIGHT PANEL — Controls ──────────────────────────────────────── */}

@@ -34,6 +34,10 @@ class LessonBase(BaseModel):
     lesson_number: str
     title: str
     hint_code: Optional[str] = None
+    is_quiz: bool = False
+    quiz_question: str | None = None
+    quiz_options: str | None = None
+    quiz_answer: int | None = None
 
 class LessonCreate(LessonBase):
     pass
