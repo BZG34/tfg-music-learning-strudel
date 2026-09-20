@@ -70,30 +70,166 @@ def seed_database():
 
     # B) Inyectar el Plan de Estudios si no existe
     curriculum = [
+        # --- BLOQUE 1: RITMO ---
         schemas.LessonCreate(
             lesson_number="1",
-            title="El Pulso Fundamental",
-            hint_code='// Lección 1: El bombo (bd) marca el pulso en 4/4\ns("bd*4")'
+            title="B1: Hola Mundo Sonoro (El Pulso)",
+            hint_code="""// BLOQUE 1: RITMO
+// s() dispara un sample de audio.
+// 'bd' es bombo (bass drum), 'sd' es caja (snare drum).
+// Evalúa esto para escuchar tu primer latido:
+
+s("bd sd bd sd")"""
         ),
         schemas.LessonCreate(
             lesson_number="2",
-            title="Subdivisiones Binarias",
-            hint_code='// Lección 2: Los corchetes [] dividen el tiempo en dos corcheas\ns("bd [hh hh] sd hh")'
+            title="B1: El valor del Silencio",
+            hint_code="""// BLOQUE 1: RITMO
+// La música respira. Usamos la virgulilla (~) para crear silencios.
+// Nota cómo el silencio cambia el 'groove'.
+
+s("bd ~ bd sd")"""
         ),
         schemas.LessonCreate(
             lesson_number="3",
-            title="Ritmos Euclidianos",
-            hint_code='// Lección 3: Distribuye x pulsos en y espacios geométricos\ns("bd(3,8)")'
+            title="B1: Multiplicadores",
+            hint_code="""// BLOQUE 1: RITMO
+// Con el asterisco (*) multiplicamos un sonido dentro del mismo pulso.
+// 'hh' es el charles (hi-hat). Vamos a acelerarlo:
+
+s("bd hh*4 sd hh*2")"""
         ),
+
+        # --- BLOQUE 2: COMPÁS Y ESTRUCTURA ---
         schemas.LessonCreate(
             lesson_number="4",
-            title="Ciclos Polifónicos",
-            hint_code='// Lección 4: stack() combina capas rítmicas en paralelo\nstack(\n  s("bd*4"),\n  s("hh*8").gain(0.5),\n  s("~ sd").room(0.4)\n).slow(2)'
+            title="B2: Multicanal (Stack)",
+            hint_code="""// BLOQUE 2: COMPÁS
+// stack() nos permite reproducir varias pistas a la vez.
+// Es el equivalente a tener varios músicos tocando juntos.
+
+stack(
+  s("bd ~ bd sd"),
+  s("hh*8").gain(0.5) // .gain() baja el volumen de esta pista
+)"""
         ),
         schemas.LessonCreate(
             lesson_number="5",
-            title="Melodía Algorítmica",
-            hint_code='// Lección 5: n() define notas musicales y s() el sintetizador\nn("c3 e3 g3 b3 c4").s("saw").lpf(1000)'
+            title="B2: Manipulación del Tiempo",
+            hint_code="""// BLOQUE 2: COMPÁS
+// .fast() y .slow() alteran la velocidad de una pista específica
+// sin cambiar el BPM global del proyecto.
+
+stack(
+  s("bd sd").fast(2),
+  s("cp").slow(2) // 'cp' = aplauso (clap) a mitad de velocidad
+)"""
+        ),
+        schemas.LessonCreate(
+            lesson_number="6",
+            title="B2: Ritmos Euclidianos",
+            hint_code="""// BLOQUE 2: COMPÁS
+// Los ritmos euclidianos (pulsos,pasos) distribuyen golpes 
+// matemáticamente de forma equidistante en un compás.
+
+stack(
+  s("bd(3,8)"), // 3 bombos repartidos en 8 pasos
+  s("hh*8").gain(0.3)
+)"""
+        ),
+
+        # --- BLOQUE 3: ESCALAS Y MELODÍA ---
+        schemas.LessonCreate(
+            lesson_number="7",
+            title="B3: Notas y Sintetizadores",
+            hint_code="""// BLOQUE 3: ESCALAS
+// Abandonamos los samples. n() genera notas musicales por números.
+// .s("saw") le dice a Strudel que use un sintetizador de onda de sierra.
+
+n("0 2 4 5").s("saw")"""
+        ),
+        schemas.LessonCreate(
+            lesson_number="8",
+            title="B3: Aplicando Escalas",
+            hint_code="""// BLOQUE 3: ESCALAS
+// Tocar números sueltos puede sonar desafinado.
+// .scale() fuerza a las notas a pertenecer a una familia armónica.
+
+n("0 2 4 7 4 2 0 -1")
+  .scale("C:minor") // Escala de Do menor
+  .s("square")      // Sintetizador de onda cuadrada"""
+        ),
+        schemas.LessonCreate(
+            lesson_number="9",
+            title="B3: Sub-patrones Melódicos",
+            hint_code="""// BLOQUE 3: ESCALAS
+// Los corchetes [] permiten agrupar varias notas en el espacio de una.
+// Esto crea melodías mucho más dinámicas y rítmicas.
+
+n("0 [2 4] 7 [4 2]")
+  .scale("A:minor")
+  .s("saw")"""
+        ),
+
+        # --- BLOQUE 4: ARMONÍA ---
+        schemas.LessonCreate(
+            lesson_number="10",
+            title="B4: Triadas y Acordes",
+            hint_code="""// BLOQUE 4: ARMONÍA
+// Un acorde es un grupo de notas sonando a la vez.
+// Usamos comilla simple (') para llamar acordes predefinidos.
+
+n("'c:maj 'a:min 'f:maj 'g:maj")
+  .s("triangle") // Onda triangular, muy suave
+  .slow(2)       // Acordes largos y sostenidos"""
+        ),
+        schemas.LessonCreate(
+            lesson_number="11",
+            title="B4: Arpegios",
+            hint_code="""// BLOQUE 4: ARMONÍA
+// .arp() rompe un acorde sólido y toca sus notas una tras otra,
+// creando una textura rítmica y armónica a la vez.
+
+n("'c:maj 'a:min 'f:maj 'g:maj")
+  .arp("updown") // Sube y baja por las notas del acorde
+  .s("saw")
+  .gain(0.5)"""
+        ),
+
+        # --- BLOQUE 5: SÍNTESIS ---
+        schemas.LessonCreate(
+            lesson_number="12",
+            title="B5: Esculpiendo Frecuencias",
+            hint_code="""// BLOQUE 5: SÍNTESIS
+// .lpf() (Low Pass Filter) recorta las frecuencias agudas.
+// Hace que un sonido brillante y molesto suene oscuro y cálido.
+
+n("0 [2 4] 7 4").scale("E:minor").s("saw")
+  .lpf(800) // Prueba a cambiar este 800 por 4000"""
+        ),
+        schemas.LessonCreate(
+            lesson_number="13",
+            title="B5: El Espacio (Reverb y Delay)",
+            hint_code="""// BLOQUE 5: SÍNTESIS
+// Damos profundidad 3D al sonido simulando habitaciones o ecos.
+
+n("0 ~ 4 ~").scale("E:minor").s("saw")
+  .room(0.8)  // Tamaño de la habitación (reverberación)
+  .delay(0.5) // Añade un eco rítmico"""
+        ),
+        schemas.LessonCreate(
+            lesson_number="14",
+            title="B5: Modulación de Parámetros",
+            hint_code="""// BLOQUE 5: SÍNTESIS
+// Podemos hacer que los parámetros se muevan solos.
+// Aquí, el filtro sube y baja usando una onda sinusoidal.
+
+stack(
+  s("bd*4"),
+  n("0 2 4 7").scale("E:minor").s("saw")
+    .lpf(sine.range(400, 3000).fast(0.2)) // El filtro 'respira'
+    .room(0.5)
+)"""
         )
     ]
 
