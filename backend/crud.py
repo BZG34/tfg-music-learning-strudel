@@ -13,7 +13,8 @@ def create_user(db: Session, user: schemas.UserCreate):
     db_user = models.User(
         username=user.username,
         email=user.email,
-        hashed_password=hashed_password # Guardamos el hash seguro
+        hashed_password=hashed_password, # Guardamos el hash seguro
+        is_admin=user.is_admin
     )
     db.add(db_user)
     db.commit()

@@ -16,6 +16,8 @@ class User(Base):
     username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
+    # Campo para indicar si el usuario es administrador
+    is_admin = Column(Boolean, default=False)
 
     # Relación: Un usuario puede tener muchos proyectos guardados
     projects = relationship("Project", back_populates="owner")

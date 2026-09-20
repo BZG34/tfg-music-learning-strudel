@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute'; // Importamos el compo
 
 // Importamos las páginas
 import LandingPage from './pages/LandingPage';
+import AdminPanel from './pages/AdminPanel';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import LiveEditor from './pages/LiveEditor';
@@ -19,6 +20,9 @@ export default function App() {
         <Routes>
           {/* Ruta raíz: Página de inicio */}
           <Route path="/" element={<LandingPage />} />
+
+          {/* Ruta panel de administración: Página de Admin */}
+          <Route path="/admin" element={<AdminPanel />} />
 
           {/* Ruta de inicio de sesión */}
           <Route path="/login" element={<LoginPage />} />

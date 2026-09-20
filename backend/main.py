@@ -54,6 +54,14 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise HTTPException(status_code=401, detail="Usuario no encontrado en la red")
     return user
 
+def get_admin_user(current_user: models.User = Depends(get_current_user)):
+    """Verifica que el usuario actual tenga privilegios de administrador."""
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Permisos insuficientes. Esta acción requiere rol de Administrador."
+        )
+    return current_user
 
 # 5. POBLADO INICIAL (Seeding) al arrancar el servidor
 @app.on_event("startup")
@@ -61,12 +69,19 @@ def seed_database():
     db = SessionLocal()
 
     # A) Crear usuario administrador por defecto
-    if not crud.get_user_by_email(db, email="admin@uah.es"):
+    db_admin = crud.get_user_by_email(db, email="admin@uah.es")
+    if not db_admin:
+        # Si no existe, lo creamos nuevo con poderes
         crud.create_user(db, schemas.UserCreate(
             username="Borja_Admin",
             email="admin@uah.es",
-            password="supersecreto"
+            password="supersecreto",
+            is_admin=True
         ))
+    else:
+        # Si ya existíe, le forzamos que sea Admin
+        db_admin.is_admin = True
+        db.commit()
 
     # B) Inyectar el Plan de Estudios si no existe
     curriculum = [
@@ -275,9 +290,9 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
         )
         
     access_token = security.create_access_token(
-        data={"sub": str(user.id), "username": user.username, "email": user.email}
+        data={"sub": str(user.id), "username": user.username, "email": user.email, "is_admin": user.is_admin}
     )
-    return {"access_token": access_token, "token_type": "bearer", "user": {"id": user.id, "username": user.username, "email": user.email}}
+    return {"access_token": access_token, "token_type": "bearer", "user": {"id": user.id, "username": user.username, "email": user.email, "is_admin": user.is_admin}}
 
 
 # ─── RUTAS DE LECCIONES ───────────────────────────────────────────────────────
@@ -377,3 +392,59 @@ def delete_user_account(db: Session = Depends(get_db), current_user: models.User
     except Exception as e:
         db.rollback() # Si algo falla, cancelamos la destrucción por seguridad
         raise HTTPException(status_code=500, detail="Error interno al borrar la cuenta")
+
+
+# ─── PANEL DE ADMINISTRACIÓN (SOLO PARA ADMINS) ───────────────────────────────
+
+@app.get("/api/admin/users/")
+def admin_get_users(db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
+    """ADMIN: Devuelve la lista de todos los usuarios registrados."""
+    users = db.query(models.User).all()
+    # Ocultamos la contraseña por seguridad al enviarlo a React
+    return [{"id": u.id, "username": u.username, "email": u.email, "is_admin": u.is_admin} for u in users]
+
+@app.delete("/api/admin/users/{user_id}")
+def admin_delete_user(user_id: int, db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
+    """ADMIN: Elimina a cualquier usuario y todo su rastro."""
+    user = crud.get_user(db, user_id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    # Limpiamos sus datos
+    db.query(models.Project).filter(models.Project.owner_id == user.id).delete()
+    user.completed_lessons = []
+    db.delete(user)
+    db.commit()
+    return {"message": f"Usuario {user.username} eliminado por el administrador."}
+
+
+@app.delete("/api/admin/projects/{project_id}")
+def admin_delete_project(project_id: int, db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
+    """ADMIN: Elimina cualquier pista de la galería de la comunidad."""
+    project = crud.get_project(db, project_id=project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Pista no encontrada")
+    
+    db.delete(project)
+    db.commit()
+    return {"message": "Pista eliminada de la galería comunitaria."}
+
+
+@app.post("/api/admin/lessons/", response_model=schemas.Lesson)
+def admin_create_lesson(lesson: schemas.LessonCreate, db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
+    """ADMIN: Añade una nueva lección al temario."""
+    return crud.create_lesson(db, lesson)
+
+
+@app.delete("/api/admin/lessons/{lesson_id}")
+def admin_delete_lesson(lesson_id: int, db: Session = Depends(get_db), admin: models.User = Depends(get_admin_user)):
+    """ADMIN: Elimina una lección del temario."""
+    lesson = db.query(models.Lesson).filter(models.Lesson.id == lesson_id).first()
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lección no encontrada")
+    
+    # Desvinculamos a los alumnos que la hayan completado para no romper la BD
+    lesson.users_completed = []
+    db.delete(lesson)
+    db.commit()
+    return {"message": "Lección eliminada del currículo."}

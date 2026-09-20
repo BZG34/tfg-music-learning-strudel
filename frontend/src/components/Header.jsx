@@ -117,6 +117,20 @@ export default function Header({ isEditor = false }) {
                                         <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest mb-1">Conectado como</p>
                                         <p className="text-sm font-bold text-[#00FF41] font-['Space_Grotesk'] truncate">@{user?.username}</p>
                                     </div>
+
+                                    {/* ── BOTÓN PANEL ADMIN (SOLO PARA ADMINS) ── */}
+                                    {user?.is_admin && (
+                                        <button
+                                            onClick={() => {
+                                                setIsMenuOpen(false);
+                                                navigate('/admin');
+                                            }}
+                                            className="flex items-center gap-3 px-4 py-3 text-xs font-mono text-[#00FF41] hover:text-[#003907] hover:bg-[#00FF41] transition-colors uppercase tracking-widest text-left border-b border-[#00FF41]/10"
+                                        >
+                                            <span className="material-symbols-outlined text-base">admin_panel_settings</span>
+                                            Panel Admin
+                                        </button>
+                                    )}
                                     
                                     {/* Botón Cerrar Sesión */}
                                     <button

@@ -20,7 +20,7 @@ class ProjectOwner(BaseModel):
     class Config:
         from_attributes = True
 
-# 2. MODIFICAMOS EL PROYECTO FINAL: Le decimos que ahora incluye al 'owner'
+# 2. MODIFICAMOS EL PROYECTO FINAL: Le decimos que incluye al 'owner'
 class Project(ProjectBase):
     id: int
     owner_id: int
@@ -51,9 +51,11 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+    is_admin: bool = False
 
 class User(UserBase):
     id: int
+    is_admin: bool
     projects: List[Project] = []
 
     class Config:
