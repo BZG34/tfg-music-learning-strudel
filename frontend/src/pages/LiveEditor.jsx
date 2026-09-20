@@ -725,14 +725,19 @@ export default function LiveEditor() {
                   onClick={() => {
                     handleStop(); // Paramos la música antes de navegar a la siguiente lección
                     const nextId = parseInt(lesson.number) + 1;
-                    setLogs([{ id: logIdRef.current++, type: 'system', message: `Saltando al Módulo ${nextId}...`, time: now() }]);
-                    
-                    // Forzamos la recarga limpia de la URL de React Router
-                    navigate(`/editor/${nextId}`, { replace: true });
-                    
-                    // Si el componente no re-monta mágicamente por culpa del Router,
-                    // forzamos el refresco suave de la página al milisegundo.
-                    setTimeout(() => window.location.reload(), 100);
+                    // Comprobamos si hemos superado la última lección
+                    if (nextId > totalLessons) {
+                      navigate('/dashboard'); // Expulsamos al alumno graduado a su panel
+                    } else {
+                      setLogs([{ id: logIdRef.current++, type: 'system', message: `Saltando al Módulo ${nextId}...`, time: now() }]);
+                      
+                      // Forzamos la recarga limpia de la URL de React Router
+                      navigate(`/editor/${nextId}`, { replace: true });
+                      
+                      // Si el componente no re-monta mágicamente por culpa del Router,
+                      // forzamos el refresco suave de la página al milisegundo.
+                      setTimeout(() => window.location.reload(), 100);
+                    }
                   }}
                   className="w-full py-3 bg-[#00FF41]/20 border border-[#00FF41]/50 text-[#00FF41] hover:bg-[#00FF41] hover:text-black font-label-caps uppercase text-xs tracking-widest font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-[0_0_15px_rgba(0,255,65,0.2)]"
                 >
