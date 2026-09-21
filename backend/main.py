@@ -23,7 +23,7 @@ app = FastAPI(
 # 3. Configuración CORS para que React pueda acceder
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # En producción cambiar por la IP de tu servidor
+    allow_origins=["*"], # En producción cambiar por la IP por la de tu servidor
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -79,7 +79,7 @@ def seed_database():
             is_admin=True
         ))
     else:
-        # Si ya existíe, le forzamos que sea Admin
+        # Si ya existe, le forzamos que sea Admin
         db_admin.is_admin = True
         db.commit()
 

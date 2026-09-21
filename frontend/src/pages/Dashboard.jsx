@@ -109,48 +109,6 @@ export default function Dashboard() {
     <div className="page-dashboard bg-[#0A0A0B] text-on-background font-body-md min-h-screen selection:bg-primary-container/30 selection:text-primary-container">
       {/* HEADER ESTANDARIZADO */}
       <Header />
-
-      {/*
-      <aside className="fixed left-0 top-0 h-full flex flex-col z-40 bg-[#141416] border-r border-[#00FF41]/10 w-64 pt-20">
-        <div className="p-6 border-b border-[#00FF41]/10 mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#00FF41]/10 flex items-center justify-center rounded">
-              <span className="material-symbols-outlined text-[#00FF41]">graphic_eq</span>
-            </div>
-            <div>
-              <h3 className="font-['Space_Grotesk'] text-sm font-bold text-on-surface">Studio Session</h3>
-              <p className="font-['Space_Grotesk'] text-[10px] text-[#00FF41] opacity-70">BPM: 128</p>
-            </div>
-          </div>
-        </div>
-        <nav className="flex-1 px-2 space-y-1 font-['Space_Grotesk'] text-sm">
-          <Link className="bg-[#00FF41]/10 text-[#00FF41] border-l-4 border-[#00FF41] shadow-[0_0_10px_rgba(0,255,65,0.2)] py-3 px-4 flex items-center gap-3 active:translate-x-1 duration-200" to="/dashboard">
-            <span className="material-symbols-outlined">grid_view</span> Panel
-          </Link>
-          <Link className="text-slate-500 py-3 px-4 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" to="/">
-            <span className="material-symbols-outlined">school</span> Lecciones
-          </Link>
-          <Link className="text-slate-500 py-3 px-4 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" to="/editor">
-            <span className="material-symbols-outlined">graphic_eq</span> Editor
-          </Link>
-          <Link className="text-slate-500 py-3 px-4 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" to="/gallery">
-            <span className="material-symbols-outlined">forum</span> Comunidad
-          </Link>
-        </nav>
-        <div className="mt-auto p-4 space-y-4 font-['Space_Grotesk']">
-          <Link to="/editor" className="w-full block text-center bg-[#00FF41] text-[#003907] font-bold py-2 rounded uppercase text-xs tracking-widest hover:brightness-110 active:scale-95 transition-all">Nueva Pista</Link>
-          <div className="border-t border-[#00FF41]/10 pt-4">
-            <a className="text-slate-600 hover:text-[#00FF41] transition-colors py-2 flex items-center gap-3 text-xs uppercase" href="https://strudel.tidalcycles.org/tutorial/" target="_blank" rel="noopener noreferrer">
-              <span className="material-symbols-outlined text-sm">menu_book</span> Documentation
-            </a>
-            <a className="text-slate-600 hover:text-[#00FF41] transition-colors py-2 flex items-center gap-3 text-xs uppercase" href="#status">
-              <span className="material-symbols-outlined text-sm">developer_board</span> System Status
-            </a>
-          </div>
-        </div>
-      </aside>
-      */}
-
       <main className="pt-24 px-8 pb-12">
         {/* Área de lecciones completadas */}
         <div className="max-w-6xl mx-auto space-y-8">

@@ -6,7 +6,7 @@ from passlib.context import CryptContext
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # CONFIGURACIÓN DEL TOKEN JWT (Secreto y tiempos)
-SECRET_KEY = "SUPER_SECRET_CYBERPUNK_KEY_MÚSICA_UAH_2026" # En producción usaría variables de entorno
+SECRET_KEY = "SUPER_SECRET_CYBERPUNK_KEY_MÚSICA_UAH_2026" # En producción se usarán variables de entorno
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 # El token durará 1 día activo
 

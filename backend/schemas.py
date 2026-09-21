@@ -13,7 +13,7 @@ class ProjectBase(BaseModel):
 class ProjectCreate(ProjectBase):
     pass
 
-# 1. AÑADIMOS ESTE MINIESQUEMA: Sirve para leer el nombre de usuario de la BD
+# 1. AÑADIMOS ESTE ESQUEMA: Sirve para leer el nombre de usuario de la BD
 class ProjectOwner(BaseModel):
     username: str
 
@@ -24,7 +24,7 @@ class ProjectOwner(BaseModel):
 class Project(ProjectBase):
     id: int
     owner_id: int
-    owner: Optional[ProjectOwner] = None # <-- Usamos Optional que ya està importado
+    owner: Optional[ProjectOwner] = None # <-- Usamos Optional que ya está importado
 
     class Config:
         from_attributes = True

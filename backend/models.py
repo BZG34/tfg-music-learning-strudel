@@ -33,7 +33,7 @@ class Project(Base):
     strudel_code = Column(Text, nullable=False)
     bpm = Column(Integer, default=128)
 
-    # Mwetadatos del editor de Strudel
+    # Metadatos del editor de Strudel
     # swing = Column(Integer, default=25)
     # quantize = Column(String, default="1/16")
     # master_volume = Column(Integer, default=80)

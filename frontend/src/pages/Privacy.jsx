@@ -46,8 +46,7 @@ export default function Privacy() {
                         </li>
                         <li>
                             <strong>Creaciones musicales:</strong> El código fuente (Strudel)
-                            de los proyectos que decidas guardar, así como sus parámetros
-                            asociados (BPM).
+                            de los proyectos que decidas guardar.
                         </li>
                     </ul>
 

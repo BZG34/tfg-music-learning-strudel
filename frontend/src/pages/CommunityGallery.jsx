@@ -42,37 +42,6 @@ export default function CommunityGallery() {
 		<div className="page-community bg-[#0A0A0B] text-on-surface font-body-md selection:bg-primary-container selection:text-on-primary-container">
 			{/* HEADER ESTANDARIZADO */}
 			<Header />
-
-			{/*
-			<aside className="fixed left-0 top-0 h-full flex flex-col z-40 bg-[#141416] border-r border-[#00FF41]/10 w-64 pt-24 hidden lg:flex">
-				<div className="px-6 mb-8">
-					<div className="flex items-center gap-3 p-3 bg-[#0A0A0B] border border-[#00FF41]/10 rounded-lg">
-						<img alt="User Avatar" className="w-10 h-10 rounded" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAo05kNhB4jtkCnA0ufA6wRzLZ5D7xnrbWAPXKFklohSCiDWuYJL29ZyOFi0s7tgcaRJ2xfXzpvzjk_Zfyezaf3rkFHgLknyIOjaztzI-4UIRulRb1kzBNAj4EvHeyHps6JD2ydVOqoAtW0PYw5liroMy6wb7K6CONh19NNtlGfFag3UgAXhMnDMFZY50nZXh6HSyLuo1xVohpaLHgvrpemozaBt3FjQe9YpX2BixJvaR4CIYEws8_1DAamnZOIVNtgbm0-H2bzzUI" />
-						<div>
-							<div className="font-['Space_Grotesk'] text-sm font-bold text-on-surface">Studio Session</div>
-							<div className="text-[10px] text-primary-container font-mono uppercase tracking-widest">BPM: 128</div>
-						</div>
-					</div>
-				</div>
-				<nav className="flex-1 font-['Space_Grotesk'] text-sm monospaced">
-                    <Link className="text-slate-500 py-3 px-6 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" to="/dashboard"><span className="material-symbols-outlined">grid_view</span> Panel</Link>
-                    <Link className="text-slate-500 py-3 px-6 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" to="/"><span className="material-symbols-outlined">school</span> Lecciones</Link>
-                    <Link className="text-slate-500 py-3 px-6 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" to="/editor"><span className="material-symbols-outlined">graphic_eq</span> Editor</Link>
-                    <Link className="bg-[#00FF41]/10 text-[#00FF41] border-l-4 border-[#00FF41] py-3 px-6 flex items-center gap-3 shadow-[0_0_10px_rgba(0,255,65,0.2)] active:translate-x-1 duration-200" to="/gallery"><span className="material-symbols-outlined">forum</span> Comunidad</Link>
-                    <Link className="text-slate-500 py-3 px-6 flex items-center gap-3 hover:bg-slate-800/50 hover:text-white transition-all active:translate-x-1 duration-200" to="/"><span className="material-symbols-outlined">settings</span> Ajustes</Link>
-                </nav>
-                <div className="p-6 mt-auto border-t border-[#00FF41]/10">
-                    <Link to="/editor" className="w-full py-3 bg-[#00FF41] text-[#003907] font-bold uppercase tracking-tighter text-sm rounded hover:brightness-110 transition-all flex items-center justify-center gap-2">
-                        <span className="material-symbols-outlined text-sm">add</span> Nueva Pista
-                    </Link>
-					<div className="mt-6 flex flex-col gap-3 font-['Space_Grotesk'] text-xs opacity-60">
-						<a className="flex items-center gap-2 hover:text-[#00FF41] transition-colors" href="#"><span className="material-symbols-outlined text-base">menu_book</span> Documentation</a>
-						<a className="flex items-center gap-2 hover:text-[#00FF41] transition-colors" href="#"><span className="material-symbols-outlined text-base">developer_board</span> System Status</a>
-					</div>
-				</div>
-			</aside>
-			*/}
-
 			<main className="pt-24 min-h-screen cyber-grid relative pb-20">
 				<div className="max-w-7xl mx-auto px-6 lg:px-beat-gap py-beat-gap">
 					<section className="mb-12">
@@ -81,14 +50,6 @@ export default function CommunityGallery() {
 								<h1 className="font-display-lg text-display-lg text-[#00FF41] tracking-tighter uppercase">Galería de la comunidad</h1>
 								<p className="text-slate-400 font-body-md max-w-lg">Descubre las últimas composiciones algorítmicas de la comunidad PAMS. Crea tu propia versión, aprende y remezcla el sonido.</p>
 							</div>
-							{/*
-							<div className="flex gap-4 items-center">
-								<div className="text-right">
-									<span className="block text-[10px] text-slate-500 font-mono uppercase tracking-widest">Active nodes</span>
-									<span className="font-headline-md text-headline-md text-on-surface">1,248</span>
-								</div>
-							</div>
-							*/}
 						</div>
 					</section>
 
@@ -105,21 +66,6 @@ export default function CommunityGallery() {
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
 							</div>
-							{/* <div className="flex gap-2">
-								<select className="bg-[#0A0A0B] border-none text-slate-400 focus:ring-1 focus:ring-[#00FF41] font-['Space_Grotesk'] text-sm rounded h-12 px-4 appearance-none">
-									<option>All Genres</option>
-									<option>Glitch Hop</option>
-									<option>Ambient</option>
-									<option>Techno-Logic</option>
-								</select>
-								<select className="bg-[#0A0A0B] border-none text-slate-400 focus:ring-1 focus:ring-[#00FF41] font-['Space_Grotesk'] text-sm rounded h-12 px-4">
-									<option>Difficulty</option>
-									<option>Beginner</option>
-									<option>Intermediate</option>
-									<option>Expert</option>
-								</select>
-								<button type="button" className="h-12 w-12 flex items-center justify-center bg-[#00FF41]/10 border border-[#00FF41]/20 text-[#00FF41] rounded hover:bg-[#00FF41]/20 transition-all"><span className="material-symbols-outlined">tune</span></button>
-							</div> */}
 						</div>
 					</section>
 
