@@ -4,7 +4,7 @@
 
 > **Trabajo de Fin de Grado** > **Grado en Ingeniería en Sistemas de Información** > **Escuela Politécnica Superior - Universidad de Alcalá (UAH)**
 
-![Status](https://img.shields.io/badge/Estado-En_Mantenimiento-yellowgreen)
+![Status](https://img.shields.io/badge/Estado-Completado-green)
 ![License](https://img.shields.io/badge/Licencia-AGPL--3.0-blue)
 ![Platform](https://img.shields.io/badge/Platform-Raspberry_Pi_5-red)
 
