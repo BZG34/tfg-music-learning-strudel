@@ -7,7 +7,7 @@ export default function Terms() {
             <Header />
             <main className="flex-grow w-full max-w-3xl mx-auto pt-32 px-6 pb-20">
                 <span className="text-[10px] font-mono text-[#00FF41] uppercase tracking-widest bg-[#00FF41]/10 px-2 py-1 rounded border border-[#00FF41]/20">
-                    Términos de Servicio
+                    Términos del Servicio
                 </span>
                 <h1 className="text-4xl font-black font-['Space_Grotesk'] mt-4 mb-10">
                     Términos y Condiciones
